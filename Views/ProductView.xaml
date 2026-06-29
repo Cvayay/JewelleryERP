@@ -1,0 +1,77 @@
+<UserControl x:Class="JewelleryERP.Views.ProductView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:JewelleryERP.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="1100"
+             d:DataContext="{d:DesignInstance Type=vm:ProductViewModel, IsDesignTimeCreatable=False}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource SectionBorderStyle}"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Product Management"
+                               FontSize="26"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Track product pricing, categories, and stock."
+                               Margin="0,6,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Load"
+                            Command="{Binding LoadProductsCommand}"
+                            Margin="0,0,8,0" />
+                    <Button Content="Search"
+                            Command="{Binding SearchProductsCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="1"
+                        Content="Search"
+                        Command="{Binding SearchProductsCommand}"
+                        Margin="8,0,0,0"
+                        MinWidth="100"
+                        Style="{StaticResource PrimaryButtonStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource SectionBorderStyle}">
+            <DataGrid ItemsSource="{Binding Products}"
+                      SelectedItem="{Binding SelectedProduct, Mode=TwoWay}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:N2}}" Width="*" />
+                    <DataGridTextColumn Header="Stock" Binding="{Binding StockQuantity}" Width="90" />
+                    <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat={}{0:dd-MMM-yyyy}}" Width="140" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

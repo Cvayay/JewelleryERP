@@ -1,0 +1,183 @@
+<UserControl x:Class="JewelleryERP.Views.InvoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:JewelleryERP.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="800"
+             d:DesignWidth="1200"
+             d:DataContext="{d:DesignInstance Type=vm:InvoiceViewModel, IsDesignTimeCreatable=False}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Invoice Management"
+                               FontSize="26"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Create invoices, review history, and export printable files."
+                               Margin="0,6,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Load"
+                            Command="{Binding LoadInvoicesCommand}"
+                            Margin="0,0,8,0" />
+                    <Button Content="Save"
+                            Command="{Binding SaveInvoiceCommand}"
+                            Margin="0,0,8,0"
+                            Style="{StaticResource PrimaryButtonStyle}" />
+                    <Button Content="Export"
+                            Command="{Binding ExportInvoiceCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Customer" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <ComboBox ItemsSource="{Binding Customers}"
+                              SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                              DisplayMemberPath="Name" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                    <TextBlock Text="Product" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <ComboBox ItemsSource="{Binding Products}"
+                              SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                              DisplayMemberPath="Name" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                    <TextBlock Text="Quantity" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
+                    <Button Content="Add Item"
+                            Command="{Binding AddItemCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Current Invoice Items"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12" />
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding InvoiceItems}"
+                              SelectedItem="{Binding SelectedInvoiceItem, Mode=TwoWay}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="2*" />
+                            <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" />
+                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat={}{0:N2}}" Width="*" />
+                            <DataGridTextColumn Header="Line Total" Binding="{Binding LineTotal, StringFormat={}{0:N2}}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Remove Item"
+                                Command="{Binding RemoveItemCommand}" />
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding TotalAmount, StringFormat=Total Amount: {0:N2}}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Invoice Search"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1"
+                                    Content="Search"
+                                    Command="{Binding SearchInvoiceCommand}"
+                                    Margin="8,0,0,0"
+                                    MinWidth="100"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1"
+                               Text="Invoice List"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12" />
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Invoices}"
+                              SelectedItem="{Binding SelectedInvoice, Mode=TwoWay}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
+                            <DataGridTextColumn Header="Date" Binding="{Binding InvoiceDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="110" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding Customer.Name}" Width="2*" />
+                            <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:N2}}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

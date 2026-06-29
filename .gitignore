@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+publish/
+# .vs/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# SQLite journal files
+*.db-wal
+*.db-shm

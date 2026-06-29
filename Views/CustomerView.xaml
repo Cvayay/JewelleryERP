@@ -1,0 +1,186 @@
+<UserControl x:Class="JewelleryERP.Views.CustomerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:JewelleryERP.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="1100"
+             d:DataContext="{d:DesignInstance Type=vm:CustomerViewModel, IsDesignTimeCreatable=False}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="White">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Customer Management"
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBlock Text="Create, search, and maintain customer records."
+                               Margin="0,4,0,0"
+                               Foreground="#6B7280" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Content="Load"
+                            Command="{Binding LoadCustomersCommand}"
+                            Width="90"
+                            Margin="0,0,8,0"
+                            Padding="12,8" />
+                    <Button Content="Search"
+                            Command="{Binding SearchCustomerCommand}"
+                            Width="90"
+                            Margin="0,0,8,0"
+                            Padding="12,8" />
+                    <Button Content="Delete"
+                            Command="{Binding DeleteCustomerCommand}"
+                            Width="90"
+                            Padding="12,8" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Padding="16"
+                    BorderBrush="#D6D9E0"
+                    BorderThickness="1"
+                    Background="White">
+                <StackPanel>
+                    <TextBlock Text="Customer Details"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,16"
+                               Foreground="#1F2937" />
+
+                    <TextBlock Text="Name" Margin="0,0,0,6" Foreground="#4B5563" />
+                    <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                             Height="32"
+                             Margin="0,0,0,12"
+                             Padding="8,4" />
+
+                    <TextBlock Text="Phone Number" Margin="0,0,0,6" Foreground="#4B5563" />
+                    <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                             Height="32"
+                             Margin="0,0,0,12"
+                             Padding="8,4" />
+
+                    <TextBlock Text="Address" Margin="0,0,0,6" Foreground="#4B5563" />
+                    <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                             Height="80"
+                             Margin="0,0,0,16"
+                             Padding="8,4"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" />
+
+                    <Button Content="Add"
+                            Command="{Binding AddCustomerCommand}"
+                            Height="36"
+                            Padding="12,8" />
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Padding="16"
+                        Margin="0,0,0,16"
+                        BorderBrush="#D6D9E0"
+                        BorderThickness="1"
+                        Background="White">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Padding="8,4"
+                                 VerticalContentAlignment="Center" />
+
+                        <Button Grid.Column="1"
+                                Content="Search"
+                                Command="{Binding SearchCustomerCommand}"
+                                Margin="8,0,0,0"
+                                Padding="12,8"
+                                MinWidth="100" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Padding="16"
+                        BorderBrush="#D6D9E0"
+                        BorderThickness="1"
+                        Background="White">
+                    <DataGrid ItemsSource="{Binding Customers}"
+                              SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" Width="*" />
+                            <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="2*" />
+                            <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat={}{0:dd-MMM-yyyy}}" Width="150" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>  
+<Window.Resources>
+
+    <DataTemplate DataType="{x:Type vm:CustomerViewModel}">
+        <views:CustomerView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:ProductViewModel}">
+        <views:ProductView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:InvoiceViewModel}">
+        <views:InvoiceView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+        <views:DashboardView/>
+    </DataTemplate>
+
+</Window.Resources>
