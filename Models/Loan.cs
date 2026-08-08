@@ -19,6 +19,7 @@ public class Loan
     public decimal PrincipalAmount { get; set; }
 
     public decimal Weight { get; set; }
+    public ICollection<LoanPayment> Payments { get; set; } = new List<LoanPayment>();
 
     public decimal PresentValue { get; set; }
 

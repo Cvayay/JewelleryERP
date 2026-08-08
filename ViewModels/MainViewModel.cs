@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JewelleryERP.Helpers;
@@ -9,12 +10,13 @@ namespace JewelleryERP.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    // UNCOMMENTED THESE FIELDS:
     private readonly CurrentUserSession _session;
-    // private readonly LoginView _loginView;
-    // private readonly DashboardView _dashboardView;
-    // private readonly CustomerView _customerView;
-    // private readonly ProductView _productView;
-    // private readonly InvoiceView _invoiceView;
+    private readonly LoginView _loginView;
+    private readonly DashboardView _dashboardView;
+    private readonly CustomerView _customerView;
+    private readonly ProductView _productView;
+    private readonly InvoiceView _invoiceView;
 
     private readonly LoginViewModel _loginViewModel;
     private readonly CustomerViewModel _customerViewModel;
@@ -26,20 +28,16 @@ public partial class MainViewModel : ObservableObject
 
     public bool IsAuthenticated => _session.IsAuthenticated;
 
-    public bool IsAdmin => _session.Role == AppRole.Admin;
+    public bool IsAdmin => _session.Role == AppRole.Admin; // Ensure AppRole.Admin matches your enum/string
 
     public string CurrentUserName => _session.UserName ?? string.Empty;
 
     public string CurrentRole => _session.Role?.ToString() ?? string.Empty;
 
     public IAsyncRelayCommand ShowDashboardViewCommand { get; }
-
     public IAsyncRelayCommand ShowCustomerViewCommand { get; }
-
     public IAsyncRelayCommand ShowProductViewCommand { get; }
-
     public IAsyncRelayCommand ShowInvoiceViewCommand { get; }
-
     public IAsyncRelayCommand LogoutCommand { get; }
 
     public MainViewModel(
@@ -60,6 +58,7 @@ public partial class MainViewModel : ObservableObject
         _customerView = customerView;
         _productView = productView;
         _invoiceView = invoiceView;
+        
         _loginViewModel = loginViewModel;
         _customerViewModel = customerViewModel;
         _productViewModel = productViewModel;
@@ -79,7 +78,8 @@ public partial class MainViewModel : ObservableObject
         ShowInvoiceViewCommand = new AsyncRelayCommand(ShowInvoiceViewAsync);
         LogoutCommand = new AsyncRelayCommand(LogoutAsync);
 
-        CurrentView = _customerViewModel;
+        // Start by checking authentication
+        CurrentView = IsAuthenticated ? _dashboardView : _loginView;
     }
 
     private void Session_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -91,6 +91,7 @@ public partial class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(CurrentUserName));
             OnPropertyChanged(nameof(CurrentRole));
 
+            // Automatically switch views when login state changes!
             CurrentView = IsAuthenticated ? _dashboardView : _loginView;
         }
     }
@@ -102,29 +103,20 @@ public partial class MainViewModel : ObservableObject
             CurrentView = _loginView;
             return Task.CompletedTask;
         }
-
         CurrentView = _dashboardView;
         return Task.CompletedTask;
     }
 
     private async Task ShowCustomerViewAsync()
     {
-        if (!IsAdmin)
-        {
-            return;
-        }
-
+        if (!IsAdmin) return;
         CurrentView = _customerView;
         await _customerViewModel.LoadCustomersCommand.ExecuteAsync(null);
     }
 
     private async Task ShowProductViewAsync()
     {
-        if (!IsAdmin)
-        {
-            return;
-        }
-
+        if (!IsAdmin) return;
         CurrentView = _productView;
         await _productViewModel.LoadProductsCommand.ExecuteAsync(null);
     }
@@ -136,15 +128,13 @@ public partial class MainViewModel : ObservableObject
             CurrentView = _loginView;
             return;
         }
-
         CurrentView = _invoiceView;
         await _invoiceViewModel.LoadInvoicesCommand.ExecuteAsync(null);
     }
 
     private Task LogoutAsync()
     {
-        _session.SignOut();
-        CurrentView = _loginView;
+        _session.SignOut(); // This will trigger PropertyChanged and navigate to Login
         return Task.CompletedTask;
     }
 }

@@ -1,200 +1,142 @@
+using System;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JewelleryERP.Data;
 using JewelleryERP.Models;
-using JewelleryERP.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace JewelleryERP.ViewModels;
 
 public partial class InvoiceViewModel : ObservableObject
 {
-    private readonly InvoiceService _invoiceService;
-    private readonly InvoiceExportService _invoiceExportService;
-    private ObservableCollection<InvoiceItem> invoiceItems = new();
+    // --- Data Collections ---
+    public ObservableCollection<Customer> AvailableCustomers { get; } = new();
+    public ObservableCollection<Product> AvailableProducts { get; } = new();
+    public ObservableCollection<InvoiceItem> CartItems { get; } = new();
+
+    // --- Bound Properties ---
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SubTotal))]
+    [NotifyPropertyChangedFor(nameof(CGSTAmount))]
+    [NotifyPropertyChangedFor(nameof(SGSTAmount))]
+    [NotifyPropertyChangedFor(nameof(GrandTotal))]
+    private Customer? _selectedCustomer;
 
     [ObservableProperty]
-    private ObservableCollection<Customer> customers = new();
+    private Product? _selectedProduct;
 
     [ObservableProperty]
-    private ObservableCollection<Product> products = new();
+    private int _quantityToAdd = 1;
 
-    [ObservableProperty]
-    private ObservableCollection<Invoice> invoices = new();
+    // --- Calculated Totals ---
+    public decimal SubTotal => CartItems.Sum(item => item.LineTotal);
+    
+    // Hardcoded 1.5% for Om Prakash Jewellers CRD (Can also be fetched from Settings)
+    public decimal CGSTAmount => SubTotal * 0.015m; 
+    public decimal SGSTAmount => SubTotal * 0.015m;
+    
+    public decimal GrandTotal => SubTotal + CGSTAmount + SGSTAmount;
 
-    [ObservableProperty]
-    private Customer? selectedCustomer;
-
-    [ObservableProperty]
-    private Product? selectedProduct;
-
-    [ObservableProperty]
-    private InvoiceItem? selectedInvoiceItem;
-
-    [ObservableProperty]
-    private Invoice? selectedInvoice;
-
-    [ObservableProperty]
-    private int quantity = 1;
-
-    [ObservableProperty]
-    private string searchText = string.Empty;
-
-    public ObservableCollection<InvoiceItem> InvoiceItems
+    public InvoiceViewModel()
     {
-        get => invoiceItems;
-        set
+        // Constructor logic if needed
+    }
+
+    [RelayCommand]
+    public async Task LoadInvoicesAsync()
+    {
+        using var context = new AppDbContext();
+        
+        // Load dropdown data for the UI
+        var customers = await context.Customers.ToListAsync();
+        var products = await context.Products.Where(p => p.StockQuantity > 0).ToListAsync();
+
+        AvailableCustomers.Clear();
+        foreach (var c in customers) AvailableCustomers.Add(c);
+
+        AvailableProducts.Clear();
+        foreach (var p in products) AvailableProducts.Add(p);
+        
+        CartItems.Clear();
+    }
+
+    [RelayCommand]
+    private void AddToCart()
+    {
+        if (SelectedProduct == null || QuantityToAdd <= 0) return;
+
+        // Check if stock is available
+        if (QuantityToAdd > SelectedProduct.StockQuantity)
         {
-            if (SetProperty(ref invoiceItems, value))
-            {
-                HookInvoiceItems();
-                OnPropertyChanged(nameof(TotalAmount));
-            }
-        }
-    }
-
-    public decimal TotalAmount => InvoiceItems.Sum(item => item.LineTotal);
-
-    public IAsyncRelayCommand AddItemCommand { get; }
-
-    public IAsyncRelayCommand RemoveItemCommand { get; }
-
-    public IAsyncRelayCommand SaveInvoiceCommand { get; }
-
-    public IAsyncRelayCommand LoadInvoicesCommand { get; }
-
-    public IAsyncRelayCommand SearchInvoiceCommand { get; }
-
-    public IAsyncRelayCommand ExportInvoiceCommand { get; }
-
-    public InvoiceViewModel(InvoiceService invoiceService, InvoiceExportService invoiceExportService)
-    {
-        _invoiceService = invoiceService;
-        _invoiceExportService = invoiceExportService;
-
-        AddItemCommand = new AsyncRelayCommand(AddItemAsync);
-        RemoveItemCommand = new AsyncRelayCommand(RemoveItemAsync);
-        SaveInvoiceCommand = new AsyncRelayCommand(SaveInvoiceAsync);
-        LoadInvoicesCommand = new AsyncRelayCommand(LoadInvoicesAsync);
-        SearchInvoiceCommand = new AsyncRelayCommand(SearchInvoiceAsync);
-        ExportInvoiceCommand = new AsyncRelayCommand(ExportInvoiceAsync);
-
-        HookInvoiceItems();
-    }
-
-    private void HookInvoiceItems()
-    {
-        invoiceItems.CollectionChanged -= InvoiceItems_CollectionChanged;
-        invoiceItems.CollectionChanged += InvoiceItems_CollectionChanged;
-    }
-
-    private void InvoiceItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(TotalAmount));
-    }
-
-    private async Task LoadInvoicesAsync()
-    {
-        if (Customers.Count == 0)
-        {
-            Customers = new ObservableCollection<Customer>(await _invoiceService.GetCustomersAsync());
-        }
-
-        if (Products.Count == 0)
-        {
-            Products = new ObservableCollection<Product>(await _invoiceService.GetProductsAsync());
-        }
-
-        Invoices = new ObservableCollection<Invoice>(await _invoiceService.GetAllInvoicesAsync());
-    }
-
-    private async Task SearchInvoiceAsync()
-    {
-        Invoices = new ObservableCollection<Invoice>(
-            await _invoiceService.SearchInvoicesAsync(SearchText));
-    }
-
-    private async Task AddItemAsync()
-    {
-        if (SelectedProduct is null || Quantity <= 0)
-        {
+            // Ideally show a warning message to the user here
             return;
         }
 
-        if (SelectedProduct.StockQuantity < Quantity)
-        {
-            return;
-        }
+        var lineTotal = SelectedProduct.Price * QuantityToAdd;
 
-        InvoiceItems.Add(new InvoiceItem
+        var newItem = new InvoiceItem
         {
             ProductId = SelectedProduct.Id,
-            ProductName = SelectedProduct.Name,
-            Quantity = Quantity,
+            Product = SelectedProduct, // For UI Display
+            HSNCode = SelectedProduct.HSNCode,
+            Quantity = QuantityToAdd,
             UnitPrice = SelectedProduct.Price,
-            LineTotal = Quantity * SelectedProduct.Price
-        });
+            LineTotal = lineTotal
+        };
 
-        Quantity = 1;
+        CartItems.Add(newItem);
+
+        // Reset inputs
         SelectedProduct = null;
-        OnPropertyChanged(nameof(TotalAmount));
-        await Task.CompletedTask;
+        QuantityToAdd = 1;
+
+        // Trigger UI updates for totals
+        OnPropertyChanged(nameof(SubTotal));
+        OnPropertyChanged(nameof(CGSTAmount));
+        OnPropertyChanged(nameof(SGSTAmount));
+        OnPropertyChanged(nameof(GrandTotal));
     }
 
-    private async Task RemoveItemAsync()
-    {
-        if (SelectedInvoiceItem is null)
-        {
-            return;
-        }
-
-        InvoiceItems.Remove(SelectedInvoiceItem);
-        SelectedInvoiceItem = null;
-        OnPropertyChanged(nameof(TotalAmount));
-        await Task.CompletedTask;
-    }
-
+    [RelayCommand]
     private async Task SaveInvoiceAsync()
     {
-        if (SelectedCustomer is null || InvoiceItems.Count == 0)
-        {
-            return;
-        }
+        if (SelectedCustomer == null || !CartItems.Any()) return;
 
-        var invoice = new Invoice
+        using var context = new AppDbContext();
+
+        var newInvoice = new Invoice
         {
             CustomerId = SelectedCustomer.Id,
             InvoiceDate = DateTime.Now,
-            Items = InvoiceItems
-                .Select(item => new InvoiceItem
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity
-                })
-                .ToList()
+            TotalAmount = GrandTotal,
+            Items = CartItems.ToList()
         };
 
-        await _invoiceService.CreateInvoiceAsync(invoice);
-
-        InvoiceItems.Clear();
-        SelectedCustomer = null;
-        SelectedProduct = null;
-        SelectedInvoiceItem = null;
-        SelectedInvoice = null;
-        Quantity = 1;
-
-        Products = new ObservableCollection<Product>(await _invoiceService.GetProductsAsync());
-        await LoadInvoicesAsync();
-        OnPropertyChanged(nameof(TotalAmount));
-    }
-
-    private async Task ExportInvoiceAsync()
-    {
-        if (SelectedInvoice is null)
+        // Deduct inventory
+        foreach (var item in newInvoice.Items)
         {
-            return;
+            var product = await context.Products.FindAsync(item.ProductId);
+            if (product != null)
+            {
+                product.StockQuantity -= item.Quantity;
+            }
         }
 
-        await _invoiceExportService.ExportInvoiceToXpsAsync(SelectedInvoice.Id);
+        context.Invoices.Add(newInvoice);
+        await context.SaveChangesAsync();
+
+        // Clear the cart for the next customer
+        CartItems.Clear();
+        SelectedCustomer = null;
+        
+        OnPropertyChanged(nameof(SubTotal));
+        OnPropertyChanged(nameof(CGSTAmount));
+        OnPropertyChanged(nameof(SGSTAmount));
+        OnPropertyChanged(nameof(GrandTotal));
+
+        // Note: PDF Generation logic will be called here next!
     }
 }

@@ -1,45 +1,79 @@
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JewelleryERP.Services;
+using JewelleryERP.Data;
+using JewelleryERP.Helpers;
+using JewelleryERP.Models;
+using JewelleryERP.Services; 
 
 namespace JewelleryERP.ViewModels;
 
-public partial class LoginViewModel : ObservableObject
+public partial class LoginViewModel : ObservableObject 
 {
-    private readonly AuthService _authService;
     private readonly CurrentUserSession _session;
 
     [ObservableProperty]
-    private string userName = string.Empty;
+    [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
+    private string _username = string.Empty;
 
     [ObservableProperty]
-    private string password = string.Empty;
+    [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
+    private string _password = string.Empty;
 
     [ObservableProperty]
-    private string statusMessage = string.Empty;
+    private string _errorMessage = string.Empty;
 
-    public IAsyncRelayCommand LoginCommand { get; }
-
-    public LoginViewModel(AuthService authService, CurrentUserSession session)
+    public LoginViewModel(CurrentUserSession session)
     {
-        _authService = authService;
         _session = session;
-
-        LoginCommand = new AsyncRelayCommand(LoginAsync);
+        EnsureDefaultAdminExists();
     }
 
-    private async Task LoginAsync()
+    private bool CanLogin()
     {
-        var result = await _authService.LoginAsync(UserName, Password);
+        return !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
+    }
 
-        if (!result.IsSuccess || result.Value is null)
+    [RelayCommand(CanExecute = nameof(CanLogin))]
+    private void Login()
+    {
+        ErrorMessage = string.Empty;
+
+        using var context = new AppDbContext();
+        var user = context.Users.FirstOrDefault(u => u.Username == Username && u.IsActive);
+
+        if (user != null && PasswordHelper.VerifyPassword(user.PasswordHash, Password))
         {
-            StatusMessage = result.Error;
-            return;
+            if (System.Enum.TryParse<AppRole>(user.Role!, out var appRole))
+            {
+                _session.SignIn(user.Username!, appRole); 
+                Password = string.Empty; 
+            }
+            else
+            {
+                ErrorMessage = "User role configuration is invalid.";
+            }
         }
+        else
+        {
+            ErrorMessage = "Invalid username or password.";
+        }
+    }
 
-        _session.SignIn(result.Value.UserName, result.Value.Role);
-        Password = string.Empty;
-        StatusMessage = $"Welcome, {result.Value.UserName}.";
+    private void EnsureDefaultAdminExists()
+    {
+        using var context = new AppDbContext();
+        context.Database.EnsureCreated();
+        if (!context.Users.Any())
+        {
+            context.Users.Add(new User
+            {
+                Username = "admin",
+                PasswordHash = PasswordHelper.HashPassword("admin123"),
+                Role = "Admin",
+                IsActive = true
+            });
+            context.SaveChanges();
+        }
     }
 }

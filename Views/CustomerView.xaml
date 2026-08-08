@@ -159,28 +159,10 @@
                             <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="2*" />
                             <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat={}{0:dd-MMM-yyyy}}" Width="150" />
                         </DataGrid.Columns>
+                        
                     </DataGrid>
                 </Border>
             </Grid>
         </Grid>
     </Grid>
 </UserControl>  
-<Window.Resources>
-
-    <DataTemplate DataType="{x:Type vm:CustomerViewModel}">
-        <views:CustomerView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:ProductViewModel}">
-        <views:ProductView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:InvoiceViewModel}">
-        <views:InvoiceView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-        <views:DashboardView/>
-    </DataTemplate>
-
-</Window.Resources>
