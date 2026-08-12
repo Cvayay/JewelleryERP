@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using JewelleryERP.Helpers;
 using JewelleryERP.Services;
 
 namespace JewelleryERP.ViewModels;
@@ -10,36 +9,31 @@ public partial class DashboardViewModel : ObservableObject
     private readonly DashboardService _dashboardService;
 
     [ObservableProperty]
-    private int totalCustomers;
+    private decimal _totalSales;
 
     [ObservableProperty]
-    private int totalProducts;
+    private int _totalCustomers;
 
     [ObservableProperty]
-    private int totalInvoices;
+    private int _totalProducts;
 
     [ObservableProperty]
-    private decimal todaysSalesAmount;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
-
-    public IAsyncRelayCommand LoadDashboardCommand { get; }
+    private decimal _totalPendingLoans;
 
     public DashboardViewModel(DashboardService dashboardService)
     {
         _dashboardService = dashboardService;
-        LoadDashboardCommand = new AsyncRelayCommand(LoadDashboardAsync);
     }
 
-    private async Task LoadDashboardAsync()
+    [RelayCommand]
+    public async Task LoadDashboardAsync()
     {
-        DashboardSummary summary = await _dashboardService.GetSummaryAsync();
+        var (totalSales, totalCustomers, totalProducts, totalPendingLoans) = 
+            await _dashboardService.GetDashboardMetricsAsync();
 
-        TotalCustomers = summary.TotalCustomers;
-        TotalProducts = summary.TotalProducts;
-        TotalInvoices = summary.TotalInvoices;
-        TodaysSalesAmount = summary.TodaysSalesAmount;
-        StatusMessage = "Dashboard data loaded.";
+        TotalSales = totalSales;
+        TotalCustomers = totalCustomers;
+        TotalProducts = totalProducts;
+        TotalPendingLoans = totalPendingLoans;
     }
 }

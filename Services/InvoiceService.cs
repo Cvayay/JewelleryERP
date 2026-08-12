@@ -13,148 +13,65 @@ public class InvoiceService
         _context = context;
     }
 
-    public async Task<List<Customer>> GetCustomersAsync()
+    public async Task<List<Invoice>> GetInvoicesAsync()
     {
-        return await _context.Customers
-            .AsNoTracking()
-            .OrderBy(customer => customer.Name)
+        return await _context.Invoices
+            .Include(i => i.Customer)
+            .Include(i => i.Items)
+                .ThenInclude(item => item.Product)
+            .OrderByDescending(i => i.InvoiceDate)
             .ToListAsync();
     }
 
-    public async Task<List<Product>> GetProductsAsync()
+    public async Task AddInvoiceAsync(Invoice invoice)
     {
-        return await _context.Products
-            .AsNoTracking()
-            .OrderBy(product => product.Name)
-            .ToListAsync();
-    }
-
-    public async Task<Invoice> CreateInvoiceAsync(Invoice invoice)
-    {
-        if (invoice.Items.Count == 0)
-        {
-            throw new InvalidOperationException("An invoice must contain at least one item.");
-        }
-
-        await using var transaction = await _context.Database.BeginTransactionAsync();
-
+        // 1. Calculate Line Totals and Adjust Inventory Stock
         foreach (var item in invoice.Items)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == item.ProductId);
-
-            if (product is null)
+            var product = await _context.Products.FindAsync(item.ProductId);
+            if (product != null)
             {
-                throw new InvalidOperationException($"Product with Id {item.ProductId} was not found.");
+                // Reduce stock by 1 for sold items (or adjust based on business logic)
+                product.StockQuantity -= 1;
             }
 
-            if (item.Quantity <= 0)
-            {
-                throw new InvalidOperationException("Quantity must be greater than zero.");
-            }
-
-            if (product.StockQuantity < item.Quantity)
-            {
-                throw new InvalidOperationException($"Not enough stock for {product.Name}.");
-            }
-
-            item.UnitPrice = product.Price;
-            item.LineTotal = item.Quantity * item.UnitPrice;
-            product.StockQuantity -= item.Quantity;
+            // Calculation formula: (NetWeight * RatePerGram) + MakingCharges
+            item.LineTotal = (item.NetWeight * item.RatePerGram) + item.MakingCharges;
         }
 
-        invoice.TotalAmount = invoice.Items.Sum(item => item.LineTotal);
+        // 2. Compute Invoice Financial Summary
+        invoice.SubTotal = invoice.Items.Sum(item => item.NetWeight * item.RatePerGram);
+        invoice.MakingChargesTotal = invoice.Items.Sum(item => item.MakingCharges);
+        
+        var taxableValue = invoice.SubTotal + invoice.MakingChargesTotal;
+        invoice.CgstAmount = Math.Round(taxableValue * 0.015m, 2); // 1.50% CGST
+        invoice.SgstAmount = Math.Round(taxableValue * 0.015m, 2); // 1.50% SGST
+        invoice.GrandTotal = taxableValue + invoice.CgstAmount + invoice.SgstAmount;
 
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return invoice;
     }
 
-    public async Task<List<Invoice>> GetAllInvoicesAsync()
+    public async Task DeleteInvoiceAsync(int invoiceId)
     {
-        return await _context.Invoices
-            .AsNoTracking()
-            .Include(invoice => invoice.Customer)
-            .Include(invoice => invoice.Items)
-            .ThenInclude(item => item.Product)
-            .OrderByDescending(invoice => invoice.InvoiceDate)
-            .ToListAsync();
-    }
-
-    public async Task<List<Invoice>> SearchInvoicesAsync(string searchTerm)
-    {
-        searchTerm = searchTerm.Trim();
-
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return await GetAllInvoicesAsync();
-        }
-
-        var query = _context.Invoices
-            .AsNoTracking()
-            .Include(invoice => invoice.Customer)
-            .Include(invoice => invoice.Items)
-            .ThenInclude(item => item.Product)
-            .AsQueryable();
-
-        if (int.TryParse(searchTerm, out var invoiceId))
-        {
-            query = query.Where(invoice => invoice.Id == invoiceId);
-        }
-        else if (DateTime.TryParse(searchTerm, out var invoiceDate))
-        {
-            query = query.Where(invoice => invoice.InvoiceDate.Date == invoiceDate.Date);
-        }
-        else
-        {
-            query = query.Where(invoice =>
-                invoice.Customer != null &&
-                (
-                    invoice.Customer.Name.Contains(searchTerm) ||
-                    (invoice.Customer.PhoneNumber != null && invoice.Customer.PhoneNumber.Contains(searchTerm))
-                ));
-        }
-
-        return await query
-            .OrderByDescending(invoice => invoice.InvoiceDate)
-            .ToListAsync();
-    }
-
-    public async Task<Invoice?> GetInvoiceByIdAsync(int id)
-    {
-        return await _context.Invoices
-            .Include(invoice => invoice.Customer)
-            .Include(invoice => invoice.Items)
-            .ThenInclude(item => item.Product)
-            .FirstOrDefaultAsync(invoice => invoice.Id == id);
-    }
-
-    public async Task DeleteInvoiceAsync(int id)
-    {
-        await using var transaction = await _context.Database.BeginTransactionAsync();
-
         var invoice = await _context.Invoices
-            .Include(invoice => invoice.Items)
-            .FirstOrDefaultAsync(invoice => invoice.Id == id);
+            .Include(i => i.Items)
+            .FirstOrDefaultAsync(i => i.Id == invoiceId);
 
-        if (invoice is null)
+        if (invoice != null)
         {
-            throw new InvalidOperationException($"Invoice with Id {id} was not found.");
-        }
-
-        foreach (var item in invoice.Items)
-        {
-            var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == item.ProductId);
-
-            if (product is not null)
+            // Restore inventory stock
+            foreach (var item in invoice.Items)
             {
-                product.StockQuantity += item.Quantity;
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity += 1;
+                }
             }
-        }
 
-        _context.Invoices.Remove(invoice);
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
+            _context.Invoices.Remove(invoice);
+            await _context.SaveChangesAsync();
+        }
     }
 }

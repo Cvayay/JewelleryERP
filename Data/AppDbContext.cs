@@ -33,11 +33,7 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            AppPaths.EnsureCreated();
-            optionsBuilder.UseSqlite($"Data Source={AppPaths.DatabasePath}");
-        }
+        optionsBuilder.UseSqlite("Data Source=jewellery.db"); 
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -82,7 +78,7 @@ public class AppDbContext : DbContext
             entity.HasKey(product => product.Id);
             entity.Property(product => product.Name).IsRequired().HasMaxLength(200);
             entity.Property(product => product.Category).HasMaxLength(100);
-            entity.Property(product => product.HSNCode).HasMaxLength(20); // Added HSN
+            entity.Property(product => product.HSNCode).HasMaxLength(20);
             entity.Property(product => product.Price).HasPrecision(18, 2);
             entity.Property(product => product.StockQuantity).HasDefaultValue(0);
             entity.Property(product => product.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").ValueGeneratedOnAdd();
@@ -93,8 +89,16 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Invoices");
             entity.HasKey(invoice => invoice.Id);
+            entity.Property(invoice => invoice.BillNumber).HasMaxLength(50);
             entity.Property(invoice => invoice.InvoiceDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(invoice => invoice.TotalAmount).HasPrecision(18, 2);
+            
+            // Financial Mappings
+            entity.Property(invoice => invoice.SubTotal).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.MakingChargesTotal).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.CgstAmount).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.SgstAmount).HasPrecision(18, 2);
+            entity.Property(invoice => invoice.GrandTotal).HasPrecision(18, 2);
+
             entity.HasOne(invoice => invoice.Customer)
                 .WithMany()
                 .HasForeignKey(invoice => invoice.CustomerId)
@@ -106,8 +110,14 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("InvoiceItems");
             entity.HasKey(item => item.Id);
-            entity.Property(item => item.HSNCode).HasMaxLength(20); // Added HSN
-            entity.Property(item => item.UnitPrice).HasPrecision(18, 2);
+            entity.Property(item => item.Description).HasMaxLength(500);
+            entity.Property(item => item.HsnCode).HasMaxLength(20);
+            
+            // Weight & Currency Precision Mappings
+            entity.Property(item => item.GrossWeight).HasPrecision(18, 3);
+            entity.Property(item => item.NetWeight).HasPrecision(18, 3);
+            entity.Property(item => item.RatePerGram).HasPrecision(18, 2);
+            entity.Property(item => item.MakingCharges).HasPrecision(18, 2);
             entity.Property(item => item.LineTotal).HasPrecision(18, 2);
             
             entity.HasOne(item => item.Invoice)

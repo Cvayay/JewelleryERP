@@ -1,5 +1,4 @@
 using JewelleryERP.Data;
-using JewelleryERP.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace JewelleryERP.Services;
@@ -13,28 +12,15 @@ public class DashboardService
         _context = context;
     }
 
-    public async Task<DashboardSummary> GetSummaryAsync()
+    public async Task<(decimal TotalSales, int TotalCustomers, int TotalProducts, decimal TotalPendingLoans)> GetDashboardMetricsAsync()
     {
-        var today = DateTime.Today;
-        var tomorrow = today.AddDays(1);
+        var totalSales = await _context.Invoices.SumAsync(i => i.GrandTotal);
+        var totalCustomers = await _context.Customers.CountAsync();
+        var totalProducts = await _context.Products.CountAsync();
+        var totalPendingLoans = await _context.Loans
+            .Where(l => l.Status == Models.LoanStatus.Pending)
+            .SumAsync(l => l.PrincipalAmount);
 
-        var totalCustomersTask = _context.Customers.AsNoTracking().CountAsync();
-        var totalProductsTask = _context.Products.AsNoTracking().CountAsync();
-        var totalInvoicesTask = _context.Invoices.AsNoTracking().CountAsync();
-        var todaysSalesTask = _context.Invoices
-            .AsNoTracking()
-            .Where(invoice => invoice.InvoiceDate >= today && invoice.InvoiceDate < tomorrow)
-            .Select(invoice => (decimal?)invoice.TotalAmount)
-            .SumAsync();
-
-        await Task.WhenAll(totalCustomersTask, totalProductsTask, totalInvoicesTask, todaysSalesTask);
-
-        return new DashboardSummary
-        {
-            TotalCustomers = await totalCustomersTask,
-            TotalProducts = await totalProductsTask,
-            TotalInvoices = await totalInvoicesTask,
-            TodaysSalesAmount = await todaysSalesTask ?? 0m
-        };
+        return (totalSales, totalCustomers, totalProducts, totalPendingLoans);
     }
 }
