@@ -10,7 +10,6 @@ namespace JewelleryERP.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    // UNCOMMENTED THESE FIELDS:
     private readonly CurrentUserSession _session;
     private readonly LoginView _loginView;
     private readonly DashboardView _dashboardView;
@@ -28,7 +27,7 @@ public partial class MainViewModel : ObservableObject
 
     public bool IsAuthenticated => _session.IsAuthenticated;
 
-    public bool IsAdmin => _session.Role == AppRole.Admin; // Ensure AppRole.Admin matches your enum/string
+    public bool IsAdmin => _session.Role == AppRole.Admin;
 
     public string CurrentUserName => _session.UserName ?? string.Empty;
 
@@ -65,8 +64,7 @@ public partial class MainViewModel : ObservableObject
         _invoiceViewModel = invoiceViewModel;
 
         _loginView.DataContext = _loginViewModel;
-        // _dashboardView.DataContext = this;
-        // _customerView.DataContext = _customerViewModel;
+        _customerView.DataContext = _customerViewModel;
         _productView.DataContext = _productViewModel;
         _invoiceView.DataContext = _invoiceViewModel;
 
@@ -107,11 +105,12 @@ public partial class MainViewModel : ObservableObject
         return Task.CompletedTask;
     }
 
-    private async Task ShowCustomerViewAsync()
+    private Task ShowCustomerViewAsync()
     {
-        if (!IsAdmin) return;
+        if (!IsAdmin) return Task.CompletedTask;
         CurrentView = _customerView;
-        await _customerViewModel.LoadCustomersCommand.ExecuteAsync(null);
+        _customerViewModel.LoadCustomersCommand.Execute(null);
+        return Task.CompletedTask;
     }
 
     private async Task ShowProductViewAsync()
@@ -134,7 +133,7 @@ public partial class MainViewModel : ObservableObject
 
     private Task LogoutAsync()
     {
-        _session.SignOut(); // This will trigger PropertyChanged and navigate to Login
+        _session.SignOut();
         return Task.CompletedTask;
     }
 }

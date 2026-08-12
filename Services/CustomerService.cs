@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using JewelleryERP.Data;
 using JewelleryERP.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,72 +16,45 @@ public class CustomerService
         _context = context;
     }
 
-    public async Task AddCustomerAsync(Customer customer)
-    {
-        if (customer.CreatedAt == default)
-        {
-            customer.CreatedAt = DateTime.Now;
-        }
-
-        await _context.Customers.AddAsync(customer);
-        await _context.SaveChangesAsync();
-    }
-
     public async Task<List<Customer>> GetAllCustomersAsync()
     {
+        return await _context.Customers.AsNoTracking().ToListAsync();
+    }
+
+    public async Task<List<Customer>> SearchCustomersAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return await GetAllCustomersAsync();
+
+        var q = query.ToLower();
         return await _context.Customers
             .AsNoTracking()
-            .OrderBy(customer => customer.Name)
+            .Where(c => c.Name.ToLower().Contains(q) || 
+                        (c.PhoneNumber != null && c.PhoneNumber.Contains(q)) ||
+                        (c.GstNumber != null && c.GstNumber.ToLower().Contains(q)) ||
+                        (c.Email != null && c.Email.ToLower().Contains(q)))
             .ToListAsync();
     }
 
-    public async Task<List<Customer>> SearchCustomersAsync(string searchTerm)
+    public async Task AddCustomerAsync(Customer customer)
     {
-        searchTerm = searchTerm.Trim();
-
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return await GetAllCustomersAsync();
-        }
-
-        return await _context.Customers
-            .AsNoTracking()
-            .Where(customer =>
-                customer.Name.Contains(searchTerm) ||
-                (customer.PhoneNumber != null && customer.PhoneNumber.Contains(searchTerm)) ||
-                (customer.Address != null && customer.Address.Contains(searchTerm)))
-            .OrderBy(customer => customer.Name)
-            .ToListAsync();
+        _context.Customers.Add(customer);
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateCustomerAsync(Customer customer)
     {
-        var existingCustomer = await _context.Customers
-            .FirstOrDefaultAsync(item => item.Id == customer.Id);
-
-        if (existingCustomer is null)
-        {
-            throw new InvalidOperationException($"Customer with Id {customer.Id} was not found.");
-        }
-
-        existingCustomer.Name = customer.Name;
-        existingCustomer.PhoneNumber = customer.PhoneNumber;
-        existingCustomer.Address = customer.Address;
-
+        _context.Customers.Update(customer);
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteCustomerAsync(int id)
+    public async Task DeleteCustomerAsync(int customerId)
     {
-        var customer = await _context.Customers
-            .FirstOrDefaultAsync(item => item.Id == id);
-
-        if (customer is null)
+        var customer = await _context.Customers.FindAsync(customerId);
+        if (customer != null)
         {
-            throw new InvalidOperationException($"Customer with Id {id} was not found.");
+            _context.Customers.Remove(customer);
+            await _context.SaveChangesAsync();
         }
-
-        _context.Customers.Remove(customer);
-        await _context.SaveChangesAsync();
     }
 }

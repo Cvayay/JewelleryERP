@@ -3,6 +3,7 @@ using JewelleryERP.Data;
 using JewelleryERP.Services;
 using JewelleryERP.ViewModels;
 using JewelleryERP.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JewelleryERP;
@@ -15,10 +16,22 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Catch unhandled exceptions to prevent silent crashes
+        this.DispatcherUnhandledException += (sender, args) =>
+        {
+            MessageBox.Show($"Startup Exception:\n\n{args.Exception.Message}\n\n{args.Exception.StackTrace}",
+                            "JewelleryERP - Fatal Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+            args.Handled = true;
+        };
+
         var services = new ServiceCollection();
 
+        // Database context
         services.AddDbContext<AppDbContext>();
 
+        // Services
         services.AddSingleton<CurrentUserSession>();
         services.AddSingleton<AuthService>();
         services.AddSingleton<CustomerService>();
@@ -28,12 +41,14 @@ public partial class App : Application
         services.AddSingleton<DashboardService>();
         services.AddSingleton<SettingService>();
 
+        // Views
         services.AddSingleton<LoginView>();
         services.AddSingleton<DashboardView>();
         services.AddSingleton<CustomerView>();
         services.AddSingleton<ProductView>();
         services.AddSingleton<InvoiceView>();
 
+        // ViewModels
         services.AddSingleton<LoginViewModel>();
         services.AddSingleton<CustomerViewModel>();
         services.AddSingleton<ProductViewModel>();
@@ -41,12 +56,26 @@ public partial class App : Application
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainViewModel>();
-        services.AddSingleton<MainWindow>();
+
+        // MainWindow Registration
+        services.AddSingleton<MainWindow>(sp =>
+        {
+            var window = new MainWindow();
+            window.DataContext = sp.GetRequiredService<MainViewModel>();
+            return window;
+        });
 
         ServiceProvider = services.BuildServiceProvider();
 
+        // Apply pending EF Core migrations to ensure database tables exist before resolving ViewModels
+        using (var scope = ServiceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            dbContext.Database.Migrate();
+        }
+
+        // Launch Application
         var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-        mainWindow.DataContext = ServiceProvider.GetRequiredService<MainViewModel>();
         mainWindow.Show();
     }
 }

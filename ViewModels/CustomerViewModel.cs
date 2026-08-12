@@ -1,95 +1,171 @@
+using System;
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using JewelleryERP.Models;
 using JewelleryERP.Services;
 
 namespace JewelleryERP.ViewModels;
 
-public partial class CustomerViewModel : ObservableObject
+public class CustomerViewModel : INotifyPropertyChanged
 {
     private readonly CustomerService _customerService;
 
-    [ObservableProperty]
-    private string customerName = string.Empty;
+    public ObservableCollection<Customer> Customers { get; set; } = new();
 
-    [ObservableProperty]
-    private string phoneNumber = string.Empty;
+    private Customer? _selectedCustomer;
+    public Customer? SelectedCustomer
+    {
+        get => _selectedCustomer;
+        set
+        {
+            _selectedCustomer = value;
+            OnPropertyChanged();
+            PopulateFormFromSelection();
+        }
+    }
 
-    [ObservableProperty]
-    private string address = string.Empty;
+    private int _id;
+    public int Id { get => _id; set { _id = value; OnPropertyChanged(); } }
 
-    [ObservableProperty]
-    private string searchText = string.Empty;
+    private string _name = string.Empty;
+    public string Name { get => _name; set { _name = value; OnPropertyChanged(); } }
 
-    [ObservableProperty]
-    private ObservableCollection<Customer> customers = new();
+    private string? _phoneNumber;
+    public string? PhoneNumber { get => _phoneNumber; set { _phoneNumber = value; OnPropertyChanged(); } }
 
-    [ObservableProperty]
-    private Customer? selectedCustomer;
+    private string? _email;
+    public string? Email { get => _email; set { _email = value; OnPropertyChanged(); } }
 
-    public IAsyncRelayCommand LoadCustomersCommand { get; }
+    private string? _gstNumber;
+    public string? GstNumber { get => _gstNumber; set { _gstNumber = value; OnPropertyChanged(); } }
 
-    public IAsyncRelayCommand AddCustomerCommand { get; }
+    private string? _address;
+    public string? Address { get => _address; set { _address = value; OnPropertyChanged(); } }
 
-    public IAsyncRelayCommand SearchCustomerCommand { get; }
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            _searchQuery = value;
+            OnPropertyChanged();
+            _ = SearchCustomersAsync();
+        }
+    }
 
-    public IAsyncRelayCommand DeleteCustomerCommand { get; }
+    public ICommand SaveCommand { get; }
+    public ICommand ClearCommand { get; }
+    public ICommand DeleteCommand { get; }
+    public ICommand LoadCustomersCommand { get; }
 
     public CustomerViewModel(CustomerService customerService)
     {
         _customerService = customerService;
 
-        LoadCustomersCommand = new AsyncRelayCommand(LoadCustomersAsync);
-        AddCustomerCommand = new AsyncRelayCommand(AddCustomerAsync);
-        SearchCustomerCommand = new AsyncRelayCommand(SearchCustomerAsync);
-        DeleteCustomerCommand = new AsyncRelayCommand(DeleteCustomerAsync);
+        SaveCommand = new RelayCommand(async () => await SaveCustomerAsync());
+        ClearCommand = new RelayCommand(ClearForm);
+        DeleteCommand = new RelayCommand(async () => await DeleteCustomerAsync());
+        LoadCustomersCommand = new RelayCommand(async () => await LoadCustomersAsync());
+
+        _ = LoadCustomersAsync();
     }
 
-    private async Task LoadCustomersAsync()
+    public async Task LoadCustomersAsync()
     {
-        var customers = await _customerService.GetAllCustomersAsync();
-        Customers = new ObservableCollection<Customer>(customers);
+        var list = await _customerService.GetAllCustomersAsync();
+        Customers.Clear();
+        foreach (var c in list) Customers.Add(c);
     }
 
-    private async Task AddCustomerAsync()
+    private async Task SearchCustomersAsync()
     {
-        if (string.IsNullOrWhiteSpace(CustomerName))
+        var list = await _customerService.SearchCustomersAsync(SearchQuery);
+        Customers.Clear();
+        foreach (var c in list) Customers.Add(c);
+    }
+
+    private async Task SaveCustomerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Name))
         {
+            MessageBox.Show("Customer Name is required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
-        var customer = new Customer
+        if (Id == 0)
         {
-            Name = CustomerName.Trim(),
-            PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
-            Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim()
-        };
+            var customer = new Customer
+            {
+                Name = Name,
+                PhoneNumber = PhoneNumber,
+                Email = Email,
+                GstNumber = GstNumber,
+                Address = Address
+            };
+            await _customerService.AddCustomerAsync(customer);
+        }
+        else
+        {
+            var customer = new Customer
+            {
+                Id = Id,
+                Name = Name,
+                PhoneNumber = PhoneNumber,
+                Email = Email,
+                GstNumber = GstNumber,
+                Address = Address
+            };
+            await _customerService.UpdateCustomerAsync(customer);
+        }
 
-        await _customerService.AddCustomerAsync(customer);
-
-        CustomerName = string.Empty;
-        PhoneNumber = string.Empty;
-        Address = string.Empty;
-
+        ClearForm();
         await LoadCustomersAsync();
-    }
-
-    private async Task SearchCustomerAsync()
-    {
-        var customers = await _customerService.SearchCustomersAsync(SearchText);
-        Customers = new ObservableCollection<Customer>(customers);
     }
 
     private async Task DeleteCustomerAsync()
     {
-        if (SelectedCustomer is null)
-        {
-            return;
-        }
+        if (SelectedCustomer == null) return;
 
-        await _customerService.DeleteCustomerAsync(SelectedCustomer.Id);
-        SelectedCustomer = null;
-        await LoadCustomersAsync();
+        var result = MessageBox.Show($"Are you sure you want to delete '{SelectedCustomer.Name}'?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (result == MessageBoxResult.Yes)
+        {
+            await _customerService.DeleteCustomerAsync(SelectedCustomer.Id);
+            ClearForm();
+            await LoadCustomersAsync();
+        }
     }
+
+    private void PopulateFormFromSelection()
+    {
+        if (SelectedCustomer != null)
+        {
+            Id = SelectedCustomer.Id;
+            Name = SelectedCustomer.Name;
+            PhoneNumber = SelectedCustomer.PhoneNumber;
+            Email = SelectedCustomer.Email;
+            GstNumber = SelectedCustomer.GstNumber;
+            Address = SelectedCustomer.Address;
+        }
+    }
+
+    private void ClearForm()
+    {
+        SelectedCustomer = null;
+        Id = 0;
+        Name = string.Empty;
+        PhoneNumber = string.Empty;
+        Email = string.Empty;
+        GstNumber = string.Empty;
+        Address = string.Empty;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
