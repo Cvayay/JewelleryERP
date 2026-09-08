@@ -206,11 +206,11 @@ public class InvoiceExportService
         var totalsGroup = new TableRowGroup();
 
         var itemsSubTotal = invoice.Items.Sum(i => i.LineTotal);
-        AddTotalRow(totalsGroup, "Amount Total", itemsSubTotal.ToString("N2"));
-        AddTotalRow(totalsGroup, "MC (Making Charges)", invoice.MakingChargeTotal.ToString("N2"));
-        AddTotalRow(totalsGroup, $"CGST @ {invoice.CgstRate:N2}%", invoice.CgstAmount.ToString("N2"));
-        AddTotalRow(totalsGroup, $"SGST @ {invoice.SgstRate:N2}%", invoice.SgstAmount.ToString("N2"));
-        AddTotalRow(totalsGroup, "TOTAL AMOUNT", invoice.TotalAmount.ToString("N2"), bold: true);
+        AddTotalRow(totalsGroup, "Amount Total", $"₹ {itemsSubTotal:N2}");
+        AddTotalRow(totalsGroup, "MC (Making Charges)", $"₹ {invoice.MakingChargeTotal:N2}");
+        AddTotalRow(totalsGroup, $"CGST @ {invoice.CgstRate:N2}%", $"₹ {invoice.CgstAmount:N2}");
+        AddTotalRow(totalsGroup, $"SGST @ {invoice.SgstRate:N2}%", $"₹ {invoice.SgstAmount:N2}");
+        AddTotalRow(totalsGroup, "TOTAL AMOUNT", $"₹ {invoice.TotalAmount:N2}", bold: true);
 
         totalsTable.RowGroups.Add(totalsGroup);
         doc.Blocks.Add(totalsTable);
@@ -266,7 +266,7 @@ public class InvoiceExportService
 
         // Header row
         var hdr = new TableRow { Background = Brushes.DarkGoldenrod };
-        string[] headers = { "Description of Goods", "HSN\nCode", "Gross Wt.\nGms   Mg", "Net Wt.\nGms   Mg", "Rate Per\nGram", "Amount\nRs.   Ps." };
+        string[] headers = { "Description of Goods", "HSN\nCode", "Gross Wt.\nGms   Mg", "Net Wt.\nGms   Mg", "Rate Per\nGram (₹)", "Amount\n₹" };
         foreach (var h in headers)
         {
             var cell = new TableCell(new Paragraph(new Run(h))
@@ -298,8 +298,8 @@ public class InvoiceExportService
             row.Cells.Add(ItemCell(item is not null
                 ? $"{item.NetWeightGms:N0}   {item.NetWeightMg:N0}"
                 : string.Empty, TextAlignment.Right));
-            row.Cells.Add(ItemCell(item is not null ? item.RatePerGram.ToString("N2") : string.Empty, TextAlignment.Right));
-            row.Cells.Add(ItemCell(item is not null ? item.LineTotal.ToString("N2") : string.Empty, TextAlignment.Right));
+            row.Cells.Add(ItemCell(item is not null ? $"₹ {item.RatePerGram:N2}" : string.Empty, TextAlignment.Right));
+            row.Cells.Add(ItemCell(item is not null ? $"₹ {item.LineTotal:N2}" : string.Empty, TextAlignment.Right));
 
             group.Rows.Add(row);
         }

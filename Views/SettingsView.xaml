@@ -176,19 +176,19 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Gold Rate"
+                        <TextBlock Text="Gold Rate (₹)"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
                         <TextBox Grid.Column="1"
-                                 Text="{Binding CurrentGoldRate, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" />
+                                 Text="{Binding CurrentGoldRate, UpdateSourceTrigger=PropertyChanged, StringFormat=₹ {0:N2}}" />
 
                         <TextBlock Grid.Row="2"
-                                   Text="Silver Rate"
+                                   Text="Silver Rate (₹)"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
                         <TextBox Grid.Row="2"
                                  Grid.Column="1"
-                                 Text="{Binding CurrentSilverRate, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" />
+                                 Text="{Binding CurrentSilverRate, UpdateSourceTrigger=PropertyChanged, StringFormat=₹ {0:N2}}" />
                     </Grid>
                 </GroupBox>
 

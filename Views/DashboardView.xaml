@@ -8,129 +8,152 @@
              d:DesignHeight="700"
              d:DesignWidth="1100"
              d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel, IsDesignTimeCreatable=False}">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="16" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <Border Grid.Row="0"
-                Style="{StaticResource SectionBorderStyle}">
-            <StackPanel>
-                <TextBlock Text="Dashboard"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
-                <TextBlock Text="A quick summary of your JewelleryERP business."
-                           Margin="0,6,0,0"
-                           Foreground="{StaticResource TextSecondaryBrush}"
-                           TextWrapping="Wrap" />
-            </StackPanel>
-        </Border>
-
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="220" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="*" MinWidth="220" />
-            </Grid.ColumnDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" MinHeight="150" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="16" />
-                <RowDefinition Height="*" MinHeight="150" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="320" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
-                    Grid.Column="0"
-                    Style="{StaticResource SectionBorderStyle}">
+            <Border Grid.Row="0" Style="{StaticResource SectionBorderStyle}">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Total Customers"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Grid.Row="1"
-                               Text="{Binding TotalCustomers}"
-                               VerticalAlignment="Bottom"
-                               FontSize="34"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource AccentBrush}" />
+                    <StackPanel>
+                        <TextBlock Text="Om Prakash Jewellers"
+                                   FontSize="26"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="Daily operating view for sales, stock, and pledge exposure."
+                                   Margin="0,6,0,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                    <Button Content="Refresh"
+                            Command="{Binding LoadDashboardCommand}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource PrimaryButtonStyle}" />
                 </Grid>
             </Border>
 
-            <Border Grid.Row="0"
-                    Grid.Column="2"
-                    Style="{StaticResource SectionBorderStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Total Products"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Grid.Row="1"
-                               Text="{Binding TotalProducts}"
-                               VerticalAlignment="Bottom"
-                               FontSize="34"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource AccentBrush}" />
-                </Grid>
-            </Border>
+            <UniformGrid Grid.Row="2" Columns="4">
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Inventory Value" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding InventoryValue, StringFormat=₹ {0:N2}}"
+                                   FontSize="24" FontWeight="Bold" Margin="0,12,0,0"
+                                   Foreground="{StaticResource AccentBrush}" />
+                        <TextBlock Text="Current stock at selling price" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="8,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Active Pledges" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding ActivePledgeCount}" FontSize="24" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource AccentBrush}" />
+                        <TextBlock Text="{Binding LoanExposure, StringFormat=Exposure: ₹ {0:N2}}" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="8,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Today's Sales" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding TodaysSalesAmount, StringFormat=₹ {0:N2}}" FontSize="24" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource AccentBrush}" />
+                        <TextBlock Text="{Binding TodaysCgstAmount, StringFormat=CGST: ₹ {0:N2}}" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding TodaysSgstAmount, StringFormat=SGST: ₹ {0:N2}}" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Metal Stock" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding GoldStockGrams, StringFormat=Gold: {0:N3} g}" FontSize="18" FontWeight="Bold"
+                                   Margin="0,12,0,0" Foreground="{StaticResource AccentBrush}" />
+                        <TextBlock Text="{Binding SilverStockGrams, StringFormat=Silver: {0:N3} g}" FontSize="14"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
 
-            <Border Grid.Row="2"
-                    Grid.Column="0"
-                    Style="{StaticResource SectionBorderStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Total Invoices"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Grid.Row="1"
-                               Text="{Binding TotalInvoices}"
-                               VerticalAlignment="Bottom"
-                               FontSize="34"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource AccentBrush}" />
-                </Grid>
-            </Border>
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="2"
-                    Grid.Column="2"
-                    Style="{StaticResource SectionBorderStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Today's Sales"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Grid.Row="1"
-                               Text="{Binding TodaysSalesAmount, StringFormat={}{0:C}}"
-                               VerticalAlignment="Bottom"
-                               FontSize="34"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource AccentBrush}" />
-                </Grid>
-            </Border>
+                <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Recent Invoices" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding RecentInvoices}" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Bill" Binding="{Binding BillNumber}" Width="*" />
+                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="2*" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding InvoiceDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="120" />
+                                <DataGridTextColumn Header="Total (₹)" Binding="{Binding TotalAmount, StringFormat=₹ {0:N2}}" Width="130" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Recent Pledges" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding RecentPledges}" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Pledge" Binding="{Binding LoanNumber}" Width="*" />
+                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.5*" />
+                                <DataGridTextColumn Header="Principal (₹)" Binding="{Binding PrincipalAmount, StringFormat=₹ {0:N2}}" Width="130" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Alerts" FontSize="18" FontWeight="SemiBold" />
+                        <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,10,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Foreground="#B45309" TextWrapping="Wrap" Margin="0,0,0,6" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="System Snapshot" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding TotalCustomers, StringFormat=Customers: {0}}" Margin="0,10,0,0" />
+                        <TextBlock Text="{Binding TotalProducts, StringFormat=Products: {0}}" />
+                        <TextBlock Text="{Binding TotalInvoices, StringFormat=Invoices: {0}}" />
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
-
-        <TextBlock Grid.Row="3"
-                   Text="{Binding StatusMessage}"
-                   Margin="0,16,0,0"
-                   Foreground="{StaticResource TextSecondaryBrush}"
-                   TextWrapping="Wrap" />
-    </Grid>
+    </ScrollViewer>
 </UserControl>

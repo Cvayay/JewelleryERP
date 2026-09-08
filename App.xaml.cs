@@ -170,6 +170,23 @@ public partial class App : Application
         await AddColumnIfMissingAsync(context, "Products", "SellingPrice");
         await AddColumnIfMissingAsync(context, "Products", "Quantity");
 
+        await AddColumnIfMissingAsync(context, "Invoices", "BillNumber");
+        await AddColumnIfMissingAsync(context, "Invoices", "MakingChargeTotal");
+        await AddColumnIfMissingAsync(context, "Invoices", "CgstRate");
+        await AddColumnIfMissingAsync(context, "Invoices", "SgstRate");
+        await AddColumnIfMissingAsync(context, "Invoices", "CgstAmount");
+        await AddColumnIfMissingAsync(context, "Invoices", "SgstAmount");
+        await AddColumnIfMissingAsync(context, "Invoices", "OwnerSignatureField");
+
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "Description");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "HsnCode");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "GrossWeightGms");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "GrossWeightMg");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "NetWeightGms");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "NetWeightMg");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "RatePerGram");
+        await AddColumnIfMissingAsync(context, "InvoiceItems", "MakingCharge");
+
         await context.Database.ExecuteSqlRawAsync(
             """
             CREATE TABLE IF NOT EXISTS Settings (
@@ -189,9 +206,6 @@ public partial class App : Application
 
         await AddColumnIfMissingAsync(context, "Settings", "ShopLogoPath");
         await AddColumnIfMissingAsync(context, "Settings", "ShopStampPath");
-
-        await AddColumnIfMissingAsync(context, "Loans", "InterestRate");
-        await AddColumnIfMissingAsync(context, "Loans", "AuctionDate");
 
         await context.Database.ExecuteSqlRawAsync(
             """
@@ -214,6 +228,9 @@ public partial class App : Application
                 CONSTRAINT FK_Loans_Customers_CustomerId FOREIGN KEY (CustomerId) REFERENCES Customers (Id) ON DELETE RESTRICT
             );
             """);
+
+        await AddColumnIfMissingAsync(context, "Loans", "InterestRate");
+        await AddColumnIfMissingAsync(context, "Loans", "AuctionDate");
 
         await context.Database.ExecuteSqlRawAsync(
             "CREATE UNIQUE INDEX IF NOT EXISTS IX_Loans_LoanNumber ON Loans (LoanNumber);");
@@ -269,6 +286,21 @@ public partial class App : Application
                     ("Products", "StoneCost") => "ALTER TABLE Products ADD COLUMN StoneCost TEXT NOT NULL DEFAULT '0';",
                     ("Products", "SellingPrice") => "ALTER TABLE Products ADD COLUMN SellingPrice TEXT NOT NULL DEFAULT '0';",
                     ("Products", "Quantity") => "ALTER TABLE Products ADD COLUMN Quantity INTEGER NOT NULL DEFAULT 0;",
+                    ("Invoices", "BillNumber") => "ALTER TABLE Invoices ADD COLUMN BillNumber TEXT NOT NULL DEFAULT '';",
+                    ("Invoices", "MakingChargeTotal") => "ALTER TABLE Invoices ADD COLUMN MakingChargeTotal TEXT NOT NULL DEFAULT '0';",
+                    ("Invoices", "CgstRate") => "ALTER TABLE Invoices ADD COLUMN CgstRate TEXT NOT NULL DEFAULT '0';",
+                    ("Invoices", "SgstRate") => "ALTER TABLE Invoices ADD COLUMN SgstRate TEXT NOT NULL DEFAULT '0';",
+                    ("Invoices", "CgstAmount") => "ALTER TABLE Invoices ADD COLUMN CgstAmount TEXT NOT NULL DEFAULT '0';",
+                    ("Invoices", "SgstAmount") => "ALTER TABLE Invoices ADD COLUMN SgstAmount TEXT NOT NULL DEFAULT '0';",
+                    ("Invoices", "OwnerSignatureField") => "ALTER TABLE Invoices ADD COLUMN OwnerSignatureField TEXT NULL;",
+                    ("InvoiceItems", "Description") => "ALTER TABLE InvoiceItems ADD COLUMN Description TEXT NOT NULL DEFAULT '';",
+                    ("InvoiceItems", "HsnCode") => "ALTER TABLE InvoiceItems ADD COLUMN HsnCode TEXT NOT NULL DEFAULT '';",
+                    ("InvoiceItems", "GrossWeightGms") => "ALTER TABLE InvoiceItems ADD COLUMN GrossWeightGms TEXT NOT NULL DEFAULT '0';",
+                    ("InvoiceItems", "GrossWeightMg") => "ALTER TABLE InvoiceItems ADD COLUMN GrossWeightMg TEXT NOT NULL DEFAULT '0';",
+                    ("InvoiceItems", "NetWeightGms") => "ALTER TABLE InvoiceItems ADD COLUMN NetWeightGms TEXT NOT NULL DEFAULT '0';",
+                    ("InvoiceItems", "NetWeightMg") => "ALTER TABLE InvoiceItems ADD COLUMN NetWeightMg TEXT NOT NULL DEFAULT '0';",
+                    ("InvoiceItems", "RatePerGram") => "ALTER TABLE InvoiceItems ADD COLUMN RatePerGram TEXT NOT NULL DEFAULT '0';",
+                    ("InvoiceItems", "MakingCharge") => "ALTER TABLE InvoiceItems ADD COLUMN MakingCharge TEXT NOT NULL DEFAULT '0';",
                     ("Settings", "ShopLogoPath") => "ALTER TABLE Settings ADD COLUMN ShopLogoPath TEXT NULL;",
                     ("Settings", "ShopStampPath") => "ALTER TABLE Settings ADD COLUMN ShopStampPath TEXT NULL;",
                     ("Loans", "InterestRate") => "ALTER TABLE Loans ADD COLUMN InterestRate TEXT NOT NULL DEFAULT '0';",

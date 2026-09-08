@@ -6,11 +6,18 @@
         mc:Ignorable="d"
         Title="JewelleryERP"
         Height="900"
-        Width="1500"
+            Width="1501"
         WindowStartupLocation="CenterScreen">
+    <Window.InputBindings>
+        <KeyBinding Key="K"
+                    Modifiers="Control"
+                    Command="{Binding OpenCommandPaletteCommand}" />
+        <KeyBinding Key="Escape"
+                    Command="{Binding CloseCommandPaletteCommand}" />
+    </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="{Binding NavigationWidth}" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -19,17 +26,29 @@
                 Padding="18">
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Top" Margin="0,0,0,18">
-                    <TextBlock Text="JewelleryERP"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,4" />
+                    <Grid>
+                        <TextBlock Text="JewelleryERP"
+                                   Foreground="White"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <Button Content="☰"
+                                Command="{Binding ToggleNavigationCommand}"
+                                HorizontalAlignment="Right"
+                                Width="38"
+                                Height="38"
+                                Padding="0"
+                                ToolTip="Collapse navigation" />
+                    </Grid>
                     <TextBlock Text="{Binding CurrentUserName}"
                                Foreground="#D1D5DB"
-                               FontSize="12" />
+                               FontSize="12"
+                               Margin="0,10,0,0"
+                               Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                     <TextBlock Text="{Binding CurrentRole}"
                                Foreground="#9CA3AF"
-                               FontSize="11" />
+                               FontSize="11"
+                               Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                 </StackPanel>
 
                 <StackPanel>
@@ -40,7 +59,7 @@
                                        Text="&#xE80F;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Dashboard" />
+                            <TextBlock Text="Dashboard" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                         </StackPanel>
                     </Button>
 
@@ -52,7 +71,7 @@
                                        Text="&#xE716;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Customers" />
+                            <TextBlock Text="Customers" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                         </StackPanel>
                     </Button>
 
@@ -64,7 +83,7 @@
                                        Text="&#xE8D2;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Products" />
+                            <TextBlock Text="Products" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                         </StackPanel>
                     </Button>
 
@@ -76,7 +95,7 @@
                                        Text="&#xE8A1;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Invoices" />
+                            <TextBlock Text="Invoices" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                         </StackPanel>
                     </Button>
 
@@ -88,7 +107,7 @@
                                        Text="&#xE8D7;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Pledge / Loan" />
+                            <TextBlock Text="Pledge / Loan" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}} />
                         </StackPanel>
                     </Button>
 
@@ -100,7 +119,7 @@
                                        Text="&#xE71B;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Ledger" />
+                            <TextBlock Text="Ledger" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}} />
                         </StackPanel>
                     </Button>
 
@@ -112,7 +131,7 @@
                                        Text="&#xE713;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Settings" />
+                            <TextBlock Text="Settings" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}} />
                         </StackPanel>
                     </Button>
 
@@ -124,15 +143,82 @@
                                        Text="&#xE8AC;"
                                        FontSize="16"
                                        Margin="0,0,10,0" />
-                            <TextBlock Text="Logout" />
+                            <TextBlock Text="Logout" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}} />
                         </StackPanel>
                     </Button>
                 </StackPanel>
+
+                <Border DockPanel.Dock="Bottom"
+                        Padding="10"
+                        Background="#1F2937"
+                        BorderBrush="#374151"
+                        BorderThickness="1"
+                        Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="PROFILE"
+                                   FontSize="10"
+                                   Foreground="#9CA3AF" />
+                        <TextBlock Text="{Binding CurrentUserName}"
+                                   Foreground="White"
+                                   FontWeight="SemiBold"
+                                   Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding DatabaseHealth}"
+                                   Foreground="#D6B15C"
+                                   FontSize="11"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
             </DockPanel>
         </Border>
 
         <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}">
             <ContentControl Content="{Binding CurrentView}" />
+
+            <Border Background="#66000000"
+                    Visibility="{Binding IsCommandPaletteOpen, Converter={StaticResource BoolToVisibility}}">
+                <Border Width="620"
+                        MaxHeight="520"
+                        VerticalAlignment="Top"
+                        Margin="0,80,0,0"
+                        Padding="18"
+                        Background="White"
+                        BorderBrush="#D6B15C"
+                        BorderThickness="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBox Text="{Binding CommandPaletteQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="18"
+                                 Padding="12"
+                                 ToolTip="Search modules, bills, pledges, customers, and stock" />
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding CommandPaletteResults}"
+                                 BorderThickness="0"
+                                 Margin="0,12,0,0"
+                                 SelectedValuePath="Target">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.ExecutePaletteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            CommandParameter="{Binding}"
+                                            HorizontalContentAlignment="Stretch"
+                                            Padding="12"
+                                            Margin="0,0,0,6">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Description}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="11" />
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </Border>
         </Grid>
     </Grid>
 </Window>

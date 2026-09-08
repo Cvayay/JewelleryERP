@@ -109,8 +109,8 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="2*" />
                             <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" />
-                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat={}{0:N2}}" Width="*" />
-                            <DataGridTextColumn Header="Line Total" Binding="{Binding LineTotal, StringFormat={}{0:N2}}" Width="*" />
+                            <DataGridTextColumn Header="Unit Price (₹)" Binding="{Binding UnitPrice, StringFormat=₹ {0:N2}}" Width="*" />
+                            <DataGridTextColumn Header="Line Total (₹)" Binding="{Binding LineTotal, StringFormat=₹ {0:N2}}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -125,7 +125,7 @@
                                 Command="{Binding RemoveItemCommand}" />
 
                         <TextBlock Grid.Column="2"
-                                   Text="{Binding TotalAmount, StringFormat=Total Amount: {0:N2}}"
+                                   Text="{Binding TotalAmount, StringFormat=Total Amount: ₹ {0:N2}}"
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center" />
@@ -180,7 +180,7 @@
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
                             <DataGridTextColumn Header="Date" Binding="{Binding InvoiceDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="110" />
                             <DataGridTextColumn Header="Customer" Binding="{Binding Customer.Name}" Width="2*" />
-                            <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:N2}}" Width="*" />
+                            <DataGridTextColumn Header="Total (₹)" Binding="{Binding TotalAmount, StringFormat=₹ {0:N2}}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

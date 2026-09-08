@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JewelleryERP.Helpers;
@@ -32,6 +34,21 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private object? currentView;
 
+    [ObservableProperty]
+    private bool isNavigationCollapsed;
+
+    [ObservableProperty]
+    private GridLength navigationWidth = new(260);
+
+    [ObservableProperty]
+    private bool isCommandPaletteOpen;
+
+    [ObservableProperty]
+    private string commandPaletteQuery = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<PaletteItem> commandPaletteResults = new();
+
     public bool IsAuthenticated => _session.IsAuthenticated;
 
     public bool IsAdmin => _session.Role == AppRole.Admin;
@@ -55,6 +72,16 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand ShowSettingsViewCommand { get; }
 
     public IAsyncRelayCommand LogoutCommand { get; }
+
+    public IRelayCommand ToggleNavigationCommand { get; }
+
+    public IRelayCommand OpenCommandPaletteCommand { get; }
+
+    public IRelayCommand CloseCommandPaletteCommand { get; }
+
+    public IRelayCommand<PaletteItem> ExecutePaletteItemCommand { get; }
+
+    public string DatabaseHealth => "Offline SQLite | Ready";
 
     public MainViewModel(
         CurrentUserSession session,
@@ -112,8 +139,73 @@ public partial class MainViewModel : ObservableObject
         ShowCustomerLedgerViewCommand = new AsyncRelayCommand(ShowCustomerLedgerViewAsync);
         ShowSettingsViewCommand = new AsyncRelayCommand(ShowSettingsViewAsync);
         LogoutCommand = new AsyncRelayCommand(LogoutAsync);
+        ToggleNavigationCommand = new RelayCommand(ToggleNavigation);
+        OpenCommandPaletteCommand = new RelayCommand(OpenCommandPalette);
+        CloseCommandPaletteCommand = new RelayCommand(CloseCommandPalette);
+        ExecutePaletteItemCommand = new RelayCommand<PaletteItem>(ExecutePaletteItem);
 
         CurrentView = _loginView;
+        RefreshCommandPaletteResults();
+    }
+
+    partial void OnCommandPaletteQueryChanged(string value)
+        => RefreshCommandPaletteResults();
+
+    private void ToggleNavigation()
+    {
+        IsNavigationCollapsed = !IsNavigationCollapsed;
+        NavigationWidth = new GridLength(IsNavigationCollapsed ? 76 : 260);
+    }
+
+    private void OpenCommandPalette()
+    {
+        IsCommandPaletteOpen = true;
+        CommandPaletteQuery = string.Empty;
+        RefreshCommandPaletteResults();
+    }
+
+    private void CloseCommandPalette()
+    {
+        IsCommandPaletteOpen = false;
+    }
+
+    private void RefreshCommandPaletteResults()
+    {
+        var options = new[]
+        {
+            new PaletteItem("Dashboard", "Open dashboard", "Dashboard"),
+            new PaletteItem("Customers", "Find customers and ledgers", "Customers"),
+            new PaletteItem("Products", "Find stock and catalog items", "Products"),
+            new PaletteItem("Invoices", "Find bills and sales", "Invoices"),
+            new PaletteItem("Pledge / Loan", "Find Form-E pledge records", "Pledge / Loan"),
+            new PaletteItem("Settings", "Shop, tax, and billing settings", "Settings")
+        };
+
+        var query = CommandPaletteQuery.Trim();
+        var filtered = string.IsNullOrWhiteSpace(query)
+            ? options
+            : options.Where(item =>
+                item.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                item.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        CommandPaletteResults = new ObservableCollection<PaletteItem>(filtered);
+    }
+
+    private void ExecutePaletteItem(PaletteItem? item)
+    {
+        if (item is null) return;
+
+        IsCommandPaletteOpen = false;
+        _ = item.Target switch
+        {
+            "Dashboard" => ShowDashboardViewAsync(),
+            "Customers" => ShowCustomerViewAsync(),
+            "Products" => ShowProductViewAsync(),
+            "Invoices" => ShowInvoiceViewAsync(),
+            "Pledge / Loan" => ShowLoanViewAsync(),
+            "Settings" => ShowSettingsViewAsync(),
+            _ => Task.CompletedTask
+        };
     }
 
     private void Session_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -223,3 +315,5 @@ public partial class MainViewModel : ObservableObject
         return Task.CompletedTask;
     }
 }
+
+public sealed record PaletteItem(string Title, string Description, string Target);

@@ -144,13 +144,13 @@
                                           Binding="{Binding Description}" 
                                           Width="2*" />
                         <DataGridTextColumn Header="Debit (₹)" 
-                                          Binding="{Binding DebitAmount, StringFormat={}{0:N2}}" 
+                                          Binding="{Binding DebitAmount, StringFormat=₹ {0:N2}}"
                                           Width="120" />
                         <DataGridTextColumn Header="Credit (₹)" 
-                                          Binding="{Binding CreditAmount, StringFormat={}{0:N2}}" 
+                                          Binding="{Binding CreditAmount, StringFormat=₹ {0:N2}}"
                                           Width="120" />
                         <DataGridTextColumn Header="Balance (₹)" 
-                                          Binding="{Binding RunningBalance, StringFormat={}{0:N2}}" 
+                                          Binding="{Binding RunningBalance, StringFormat=₹ {0:N2}}"
                                           Width="130" />
                     </DataGrid.Columns>
                 </DataGrid>

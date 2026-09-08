@@ -17,4 +17,12 @@ public static class AppPaths
         Directory.CreateDirectory(AppDataRoot);
         Directory.CreateDirectory(ExportsFolder);
     }
+
+    public static void WriteError(string source, Exception exception)
+    {
+        EnsureCreated();
+        var logPath = Path.Combine(AppDataRoot, "error.log");
+        var message = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{source}] {exception}\n";
+        File.AppendAllText(logPath, message);
+    }
 }

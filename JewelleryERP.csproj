@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Page Remove="MainWindow.xaml" />
     <Page Update="Themes\Theme.xaml">
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>

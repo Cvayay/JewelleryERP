@@ -1,6 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:helpers="clr-namespace:JewelleryERP.Helpers">
     <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibility" />
 
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F3F4F6" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="White" />
