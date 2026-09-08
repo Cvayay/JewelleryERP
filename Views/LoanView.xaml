@@ -1,0 +1,316 @@
+<UserControl x:Class="JewelleryERP.Views.LoanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:JewelleryERP.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="1100"
+             d:DataContext="{d:DesignInstance Type=vm:LoanViewModel, IsDesignTimeCreatable=False}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="White">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Pledge / Loan Management"
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBlock Text="Register pledged items, redeem loans, and manage auction status."
+                               Margin="0,4,0,0"
+                               Foreground="#6B7280" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Content="Load"
+                            Command="{Binding LoadLoansCommand}"
+                            Width="90"
+                            Margin="0,0,8,0"
+                            Padding="12,8" />
+                    <Button Content="Clear"
+                            Command="{Binding ClearFormCommand}"
+                            Width="90"
+                            Margin="0,0,8,0"
+                            Padding="12,8" />
+                    <Button Content="Search"
+                            Command="{Binding SearchCommand}"
+                            Width="90"
+                            Padding="12,8" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel: Loan Form -->
+            <Border Grid.Column="0"
+                    Padding="16"
+                    BorderBrush="#D6D9E0"
+                    BorderThickness="1"
+                    Background="White">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="True">
+                    <StackPanel>
+                        <!-- New Loan Section -->
+                        <TextBlock Text="New Loan Registration"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,16"
+                                   Foreground="#1F2937" />
+
+                        <TextBlock Text="Customer" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <ComboBox ItemsSource="{Binding Customers}"
+                                  SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  Height="32"
+                                  Margin="0,0,0,12"
+                                  Padding="8,4" />
+
+                        <TextBlock Text="Loan Date" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding LoanDate, StringFormat={}{0:dd-MMM-yyyy}, Mode=TwoWay}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Principal Amount (₹)" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding PrincipalAmount, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Interest Rate (%)" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding InterestRate, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Item Weight (gm)" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding Weight, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Estimated Item Value (₹)" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding PresentValue, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Article Description" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding ArticleDescription, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="60"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+
+                        <TextBlock Text="Owner Name" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding OwnerName, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Owner Address" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding OwnerAddress, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="60"
+                                 Margin="0,0,0,16"
+                                 Padding="8,4"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+
+                        <Button Content="Add Loan"
+                                Command="{Binding AddLoanCommand}"
+                                Height="36"
+                                Margin="0,0,0,16"
+                                Padding="12,8"
+                                FontWeight="SemiBold" />
+
+                        <!-- Redeem Section -->
+                        <Separator Margin="0,16,0,16" Background="#D6D9E0" />
+
+                        <TextBlock Text="Redeem Loan"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,12"
+                                   Foreground="#1F2937" />
+
+                        <TextBlock Text="Redeemer Name" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding RedeemerName, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4" />
+
+                        <TextBlock Text="Redeemer Address" Margin="0,0,0,6" Foreground="#4B5563" FontSize="12" />
+                        <TextBox Text="{Binding RedeemerAddress, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="60"
+                                 Margin="0,0,0,12"
+                                 Padding="8,4"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+
+                        <Button Content="Redeem Selected Loan"
+                                Command="{Binding RedeemLoanCommand}"
+                                Height="36"
+                                Margin="0,0,0,12"
+                                Padding="12,8"
+                                Background="#10B981" />
+
+                        <!-- Auction Section -->
+                        <Button Content="Mark as Auctioned"
+                                Command="{Binding AuctionLoanCommand}"
+                                Height="36"
+                                Padding="12,8"
+                                Background="#EF4444" />
+
+                        <!-- Status Message -->
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   Margin="0,16,0,0"
+                                   Padding="8"
+                                   Foreground="#059669"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Background="#ECFDF5" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel: Loans List -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Search Bar -->
+                <Border Grid.Row="0"
+                        Padding="16"
+                        Margin="0,0,0,12"
+                        BorderBrush="#D6D9E0"
+                        BorderThickness="1"
+                        Background="White">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32"
+                                 Padding="8,4"
+                                 VerticalContentAlignment="Center" />
+
+                        <ComboBox Grid.Column="1"
+                                  SelectedItem="{Binding FilterStatus, Mode=TwoWay}"
+                                  Margin="8,0,0,0"
+                                  Padding="8,4"
+                                  Height="32"
+                                  Width="120">
+                            <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">All</System:String>
+                            <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Pending</System:String>
+                            <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Redeemed</System:String>
+                            <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Auctioned</System:String>
+                        </ComboBox>
+
+                        <Button Grid.Column="2"
+                                Content="Search"
+                                Command="{Binding SearchCommand}"
+                                Margin="8,0,0,0"
+                                Padding="12,8"
+                                MinWidth="100" />
+                    </Grid>
+                </Border>
+
+                <!-- Interest Calculation Display -->
+                <Border Grid.Row="1"
+                        Padding="12"
+                        Margin="0,0,0,12"
+                        BorderBrush="#D6D9E0"
+                        BorderThickness="1"
+                        Background="#FFFAF0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Interest Due" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding SelectedLoanInterest}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="#D97706" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Total Due" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding SelectedLoanTotalDue}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="#DC2626" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Loans DataGrid -->
+                <Border Grid.Row="2"
+                        Padding="16"
+                        BorderBrush="#D6D9E0"
+                        BorderThickness="1"
+                        Background="White">
+                    <DataGrid ItemsSource="{Binding Loans}"
+                              SelectedItem="{Binding SelectedLoan, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
+                            <DataGridTextColumn Header="Customer" Binding="{Binding Customer.Name}" Width="150" />
+                            <DataGridTextColumn Header="Item" Binding="{Binding ArticleDescription}" Width="180" />
+                            <DataGridTextColumn Header="Weight (gm)" Binding="{Binding Weight}" Width="100" />
+                            <DataGridTextColumn Header="Principal (₹)" Binding="{Binding PrincipalAmount, StringFormat={}{0:N2}}" Width="120" />
+                            <DataGridTextColumn Header="Rate (%)" Binding="{Binding InterestRate}" Width="70" />
+                            <DataGridTextColumn Header="Loan Date" Binding="{Binding LoanDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="110" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

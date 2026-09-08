@@ -81,6 +81,30 @@
                     </Button>
 
                     <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding ShowLoanViewCommand}"
+                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8D7;"
+                                       FontSize="16"
+                                       Margin="0,0,10,0" />
+                            <TextBlock Text="Pledge / Loan" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding ShowCustomerLedgerViewCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE71B;"
+                                       FontSize="16"
+                                       Margin="0,0,10,0" />
+                            <TextBlock Text="Ledger" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource SidebarButtonStyle}"
                             Command="{Binding ShowSettingsViewCommand}"
                             Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel Orientation="Horizontal">

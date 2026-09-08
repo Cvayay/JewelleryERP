@@ -36,6 +36,8 @@ public partial class App : Application
         services.AddSingleton<CustomerView>();
         services.AddSingleton<ProductView>();
         services.AddSingleton<InvoiceView>();
+        services.AddSingleton<LoanView>();
+        services.AddSingleton<CustomerLedgerView>();
         services.AddSingleton<SettingsView>();
 
         services.AddSingleton<LoginViewModel>();
@@ -44,6 +46,8 @@ public partial class App : Application
         services.AddSingleton<InvoiceViewModel>();
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<LoanViewModel>();
+        services.AddSingleton<CustomerLedgerViewModel>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<MainWindow>();
 
@@ -149,6 +153,23 @@ public partial class App : Application
         await context.Database.ExecuteSqlRawAsync(
             "CREATE INDEX IF NOT EXISTS IX_InvoiceItems_ProductId ON InvoiceItems (ProductId);");
 
+        await AddColumnIfMissingAsync(context, "Customers", "GSTIN");
+
+        await AddColumnIfMissingAsync(context, "Products", "ProductCode");
+        await AddColumnIfMissingAsync(context, "Products", "Barcode");
+        await AddColumnIfMissingAsync(context, "Products", "MetalType");
+        await AddColumnIfMissingAsync(context, "Products", "Purity");
+        await AddColumnIfMissingAsync(context, "Products", "Weight");
+        await AddColumnIfMissingAsync(context, "Products", "GrossWeight");
+        await AddColumnIfMissingAsync(context, "Products", "StoneWeight");
+        await AddColumnIfMissingAsync(context, "Products", "NetWeight");
+        await AddColumnIfMissingAsync(context, "Products", "MetalRate");
+        await AddColumnIfMissingAsync(context, "Products", "MakingCharge");
+        await AddColumnIfMissingAsync(context, "Products", "MakingChargeType");
+        await AddColumnIfMissingAsync(context, "Products", "StoneCost");
+        await AddColumnIfMissingAsync(context, "Products", "SellingPrice");
+        await AddColumnIfMissingAsync(context, "Products", "Quantity");
+
         await context.Database.ExecuteSqlRawAsync(
             """
             CREATE TABLE IF NOT EXISTS Settings (
@@ -165,6 +186,12 @@ public partial class App : Application
                 CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
             """);
+
+        await AddColumnIfMissingAsync(context, "Settings", "ShopLogoPath");
+        await AddColumnIfMissingAsync(context, "Settings", "ShopStampPath");
+
+        await AddColumnIfMissingAsync(context, "Loans", "InterestRate");
+        await AddColumnIfMissingAsync(context, "Loans", "AuctionDate");
 
         await context.Database.ExecuteSqlRawAsync(
             """
@@ -201,6 +228,60 @@ public partial class App : Application
         catch
         {
             // SQLite has no ADD COLUMN IF NOT EXISTS. If it already exists, the schema is fine.
+        }
+    }
+
+    private static async Task AddColumnIfMissingAsync(
+        AppDbContext context,
+        string tableName,
+        string columnName)
+    {
+        var connection = context.Database.GetDbConnection();
+        await context.Database.OpenConnectionAsync();
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{tableName}') WHERE name = $columnName;";
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "$columnName";
+            parameter.Value = columnName;
+            command.Parameters.Add(parameter);
+
+            var columnExists = Convert.ToInt32(await command.ExecuteScalarAsync()) > 0;
+            if (!columnExists)
+            {
+                var alterSql = (tableName, columnName) switch
+                {
+                    ("Customers", "GSTIN") => "ALTER TABLE Customers ADD COLUMN GSTIN TEXT NULL;",
+                    ("Products", "ProductCode") => "ALTER TABLE Products ADD COLUMN ProductCode TEXT NOT NULL DEFAULT '';",
+                    ("Products", "Barcode") => "ALTER TABLE Products ADD COLUMN Barcode TEXT NULL;",
+                    ("Products", "MetalType") => "ALTER TABLE Products ADD COLUMN MetalType TEXT NOT NULL DEFAULT 'Gold';",
+                    ("Products", "Purity") => "ALTER TABLE Products ADD COLUMN Purity TEXT NOT NULL DEFAULT '22K';",
+                    ("Products", "Weight") => "ALTER TABLE Products ADD COLUMN Weight TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "GrossWeight") => "ALTER TABLE Products ADD COLUMN GrossWeight TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "StoneWeight") => "ALTER TABLE Products ADD COLUMN StoneWeight TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "NetWeight") => "ALTER TABLE Products ADD COLUMN NetWeight TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "MetalRate") => "ALTER TABLE Products ADD COLUMN MetalRate TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "MakingCharge") => "ALTER TABLE Products ADD COLUMN MakingCharge TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "MakingChargeType") => "ALTER TABLE Products ADD COLUMN MakingChargeType TEXT NOT NULL DEFAULT 'PerGram';",
+                    ("Products", "StoneCost") => "ALTER TABLE Products ADD COLUMN StoneCost TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "SellingPrice") => "ALTER TABLE Products ADD COLUMN SellingPrice TEXT NOT NULL DEFAULT '0';",
+                    ("Products", "Quantity") => "ALTER TABLE Products ADD COLUMN Quantity INTEGER NOT NULL DEFAULT 0;",
+                    ("Settings", "ShopLogoPath") => "ALTER TABLE Settings ADD COLUMN ShopLogoPath TEXT NULL;",
+                    ("Settings", "ShopStampPath") => "ALTER TABLE Settings ADD COLUMN ShopStampPath TEXT NULL;",
+                    ("Loans", "InterestRate") => "ALTER TABLE Loans ADD COLUMN InterestRate TEXT NOT NULL DEFAULT '0';",
+                    ("Loans", "AuctionDate") => "ALTER TABLE Loans ADD COLUMN AuctionDate TEXT NULL;",
+                    _ => throw new ArgumentException($"Unsupported database column: {tableName}.{columnName}")
+                };
+
+                await context.Database.ExecuteSqlRawAsync(alterSql);
+            }
+        }
+        finally
+        {
+            context.Database.CloseConnection();
         }
     }
 }

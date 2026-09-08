@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using JewelleryERP.Helpers;
 using JewelleryERP.Services;
 using JewelleryERP.Views;
+using JewelleryERP.ViewModels;
 
 namespace JewelleryERP.ViewModels;
 
@@ -15,6 +16,8 @@ public partial class MainViewModel : ObservableObject
     private readonly CustomerView _customerView;
     private readonly ProductView _productView;
     private readonly InvoiceView _invoiceView;
+    private readonly LoanView _loanView;
+    private readonly CustomerLedgerView _customerLedgerView;
     private readonly SettingsView _settingsView;
 
     private readonly LoginViewModel _loginViewModel;
@@ -22,6 +25,8 @@ public partial class MainViewModel : ObservableObject
     private readonly CustomerViewModel _customerViewModel;
     private readonly ProductViewModel _productViewModel;
     private readonly InvoiceViewModel _invoiceViewModel;
+    private readonly LoanViewModel _loanViewModel;
+    private readonly CustomerLedgerViewModel _customerLedgerViewModel;
     private readonly SettingsViewModel _settingsViewModel;
 
     [ObservableProperty]
@@ -43,6 +48,10 @@ public partial class MainViewModel : ObservableObject
 
     public IAsyncRelayCommand ShowInvoiceViewCommand { get; }
 
+    public IAsyncRelayCommand ShowLoanViewCommand { get; }
+
+    public IAsyncRelayCommand ShowCustomerLedgerViewCommand { get; }
+
     public IAsyncRelayCommand ShowSettingsViewCommand { get; }
 
     public IAsyncRelayCommand LogoutCommand { get; }
@@ -54,12 +63,16 @@ public partial class MainViewModel : ObservableObject
         CustomerView customerView,
         ProductView productView,
         InvoiceView invoiceView,
+        LoanView loanView,
+        CustomerLedgerView customerLedgerView,
         SettingsView settingsView,
         LoginViewModel loginViewModel,
         DashboardViewModel dashboardViewModel,
         CustomerViewModel customerViewModel,
         ProductViewModel productViewModel,
         InvoiceViewModel invoiceViewModel,
+        LoanViewModel loanViewModel,
+        CustomerLedgerViewModel customerLedgerViewModel,
         SettingsViewModel settingsViewModel)
     {
         _session = session;
@@ -68,12 +81,16 @@ public partial class MainViewModel : ObservableObject
         _customerView = customerView;
         _productView = productView;
         _invoiceView = invoiceView;
+        _loanView = loanView;
+        _customerLedgerView = customerLedgerView;
         _settingsView = settingsView;
         _loginViewModel = loginViewModel;
         _dashboardViewModel = dashboardViewModel;
         _customerViewModel = customerViewModel;
         _productViewModel = productViewModel;
         _invoiceViewModel = invoiceViewModel;
+        _loanViewModel = loanViewModel;
+        _customerLedgerViewModel = customerLedgerViewModel;
         _settingsViewModel = settingsViewModel;
 
         _loginView.DataContext = _loginViewModel;
@@ -81,6 +98,8 @@ public partial class MainViewModel : ObservableObject
         _customerView.DataContext = _customerViewModel;
         _productView.DataContext = _productViewModel;
         _invoiceView.DataContext = _invoiceViewModel;
+        _loanView.DataContext = _loanViewModel;
+        _customerLedgerView.DataContext = _customerLedgerViewModel;
         _settingsView.DataContext = _settingsViewModel;
 
         _session.PropertyChanged += Session_PropertyChanged;
@@ -89,6 +108,8 @@ public partial class MainViewModel : ObservableObject
         ShowCustomerViewCommand = new AsyncRelayCommand(ShowCustomerViewAsync);
         ShowProductViewCommand = new AsyncRelayCommand(ShowProductViewAsync);
         ShowInvoiceViewCommand = new AsyncRelayCommand(ShowInvoiceViewAsync);
+        ShowLoanViewCommand = new AsyncRelayCommand(ShowLoanViewAsync);
+        ShowCustomerLedgerViewCommand = new AsyncRelayCommand(ShowCustomerLedgerViewAsync);
         ShowSettingsViewCommand = new AsyncRelayCommand(ShowSettingsViewAsync);
         LogoutCommand = new AsyncRelayCommand(LogoutAsync);
 
@@ -159,6 +180,29 @@ public partial class MainViewModel : ObservableObject
 
         CurrentView = _invoiceView;
         await _invoiceViewModel.LoadInvoicesCommand.ExecuteAsync(null);
+    }
+
+    private async Task ShowLoanViewAsync()
+    {
+        if (!IsAuthenticated)
+        {
+            CurrentView = _loginView;
+            return;
+        }
+
+        CurrentView = _loanView;
+        await _loanViewModel.LoadLoansCommand.ExecuteAsync(null);
+    }
+
+    private async Task ShowCustomerLedgerViewAsync()
+    {
+        if (!IsAdmin)
+        {
+            return;
+        }
+
+        CurrentView = _customerLedgerView;
+        await _customerLedgerViewModel.LoadCustomersCommand.ExecuteAsync(null);
     }
 
     private async Task ShowSettingsViewAsync()

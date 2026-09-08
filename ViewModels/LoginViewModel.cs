@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JewelleryERP.Helpers;
 using JewelleryERP.Services;
 
 namespace JewelleryERP.ViewModels;
@@ -24,22 +25,34 @@ public partial class LoginViewModel : ObservableObject
     {
         _authService = authService;
         _session = session;
-
         LoginCommand = new AsyncRelayCommand(LoginAsync);
     }
 
     private async Task LoginAsync()
     {
-        var result = await _authService.LoginAsync(UserName, Password);
-
-        if (!result.IsSuccess || result.Value is null)
+        if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Password))
         {
-            StatusMessage = result.Error;
+            StatusMessage = "Please enter username and password.";
             return;
         }
 
-        _session.SignIn(result.Value.UserName, result.Value.Role);
-        Password = string.Empty;
-        StatusMessage = $"Welcome, {result.Value.UserName}.";
+        try
+        {
+            var result = await _authService.LoginAsync(UserName, Password);
+            if (result.IsSuccess && result.Value is not null)
+            {
+                _session.SignIn(result.Value.UserName, result.Value.Role);
+                StatusMessage = $"Welcome, {result.Value.UserName}!";
+            }
+            else
+            {
+                StatusMessage = result.Error ?? "Login failed.";
+                Password = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Login error: {ex.Message}";
+        }
     }
 }

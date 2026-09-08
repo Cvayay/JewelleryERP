@@ -25,5 +25,11 @@ public class Setting
 
     public decimal DefaultInterestRate { get; set; }
 
+    /// <summary>Path to shop logo image file for bill printing.</summary>
+    public string? ShopLogoPath { get; set; }
+
+    /// <summary>Path to shop stamp/seal image file for bill printing.</summary>
+    public string? ShopStampPath { get; set; }
+
     public DateTime CreatedAt { get; set; }
 }

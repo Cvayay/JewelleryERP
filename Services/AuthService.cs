@@ -6,8 +6,8 @@ public class AuthService
 {
     private readonly Dictionary<string, (string Password, AppRole Role)> _users = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["admin"] = ("admin123", AppRole.Admin),
-        ["staff"] = ("staff123", AppRole.Staff)
+        ["admin"] = ("shivaji17", AppRole.Admin),
+        ["staff"] = ("staff16", AppRole.Staff)
     };
 
     public Task<Result<AuthUser>> LoginAsync(string userName, string password)

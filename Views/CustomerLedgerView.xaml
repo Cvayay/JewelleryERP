@@ -1,0 +1,219 @@
+<UserControl x:Class="JewelleryERP.Views.CustomerLedgerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:JewelleryERP.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="1100"
+             d:DataContext="{d:DesignInstance Type=vm:CustomerLedgerViewModel, IsDesignTimeCreatable=False}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="White">
+            <StackPanel>
+                <TextBlock Text="Customer Ledger"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="#1F2937" />
+                <TextBlock Text="Track debit (sales) and credit (pledges) transactions for each customer."
+                           Margin="0,4,0,0"
+                           Foreground="#6B7280" />
+            </StackPanel>
+        </Border>
+
+        <!-- Customer Selection & Info -->
+        <Border Grid.Row="1"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="White">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Customer Dropdown -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Select Customer" FontSize="12" Foreground="#4B5563" Margin="0,0,0,6" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{Binding Customers}"
+                                  SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  Height="32"
+                                  Padding="8,4" />
+
+                        <Button Grid.Column="1"
+                                Content="Load"
+                                Command="{Binding LoadCustomersCommand}"
+                                Margin="8,0,0,0"
+                                Padding="12,8"
+                                Width="80" />
+                    </Grid>
+                </StackPanel>
+
+                <!-- Customer Info Display -->
+                <StackPanel Grid.Column="1" Margin="32,0,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Phone" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding CustomerPhone}" FontSize="14" FontWeight="SemiBold" Foreground="#1F2937" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Address" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding CustomerAddress}" FontSize="12" Foreground="#374151" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                            <TextBlock Text="Status Message" FontSize="11" Foreground="#6B7280" />
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="#059669" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Ledger Transactions Table -->
+        <Border Grid.Row="2"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="White">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="Transaction History"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,12"
+                           Foreground="#1F2937" />
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding LedgerTransactions}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          AlternatingRowBackground="#F9FAFB">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" 
+                                          Binding="{Binding TransactionDate, StringFormat={}{0:dd-MMM-yyyy}}" 
+                                          Width="120" />
+                        <DataGridTextColumn Header="Type" 
+                                          Binding="{Binding TransactionType}" 
+                                          Width="100" />
+                        <DataGridTextColumn Header="Ref #" 
+                                          Binding="{Binding ReferenceNumber}" 
+                                          Width="100" />
+                        <DataGridTextColumn Header="Description" 
+                                          Binding="{Binding Description}" 
+                                          Width="2*" />
+                        <DataGridTextColumn Header="Debit (₹)" 
+                                          Binding="{Binding DebitAmount, StringFormat={}{0:N2}}" 
+                                          Width="120" />
+                        <DataGridTextColumn Header="Credit (₹)" 
+                                          Binding="{Binding CreditAmount, StringFormat={}{0:N2}}" 
+                                          Width="120" />
+                        <DataGridTextColumn Header="Balance (₹)" 
+                                          Binding="{Binding RunningBalance, StringFormat={}{0:N2}}" 
+                                          Width="130" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Summary Statistics Footer -->
+        <Border Grid.Row="3"
+                Padding="16"
+                BorderBrush="#D6D9E0"
+                BorderThickness="1"
+                Background="#FFFAF0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Total Debit -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Debit" FontSize="11" Foreground="#6B7280" TextAlignment="Center" />
+                    <TextBlock Text="{Binding TotalDebit, StringFormat=₹{0:N2}}" 
+                               FontSize="16" 
+                               FontWeight="SemiBold" 
+                               Foreground="#DC2626"
+                               TextAlignment="Center" />
+                    <TextBlock Text="(Customer owes us)" FontSize="9" Foreground="#6B7280" TextAlignment="Center" />
+                </StackPanel>
+
+                <!-- Total Credit -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Credit" FontSize="11" Foreground="#6B7280" TextAlignment="Center" />
+                    <TextBlock Text="{Binding TotalCredit, StringFormat=₹{0:N2}}" 
+                               FontSize="16" 
+                               FontWeight="SemiBold" 
+                               Foreground="#10B981"
+                               TextAlignment="Center" />
+                    <TextBlock Text="(We owe customer)" FontSize="9" Foreground="#6B7280" TextAlignment="Center" />
+                </StackPanel>
+
+                <!-- Closing Balance -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="Closing Balance" FontSize="11" Foreground="#6B7280" TextAlignment="Center" />
+                    <TextBlock Text="{Binding ClosingBalance, StringFormat=₹{0:N2}}" 
+                               FontSize="16" 
+                               FontWeight="SemiBold" 
+                               Foreground="#1F2937"
+                               TextAlignment="Center" />
+                    <TextBlock Text="(Positive = Customer owes; Negative = We owe)" 
+                               FontSize="8" 
+                               Foreground="#6B7280" 
+                               TextAlignment="Center" />
+                </StackPanel>
+
+                <!-- Legend -->
+                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <TextBlock Text="Legend:" FontSize="11" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,6" />
+                    <TextBlock Text="• Debit: Amount customer owes (positive balance)" FontSize="10" Foreground="#374151" />
+                    <TextBlock Text="• Credit: Amount pledged (reduces balance)" FontSize="10" Foreground="#374151" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -37,6 +37,12 @@ public partial class SettingsViewModel : ObservableObject
     private decimal defaultInterestRate;
 
     [ObservableProperty]
+    private string shopLogoPath = string.Empty;
+
+    [ObservableProperty]
+    private string shopStampPath = string.Empty;
+
+    [ObservableProperty]
     private string statusMessage = string.Empty;
 
     public IAsyncRelayCommand LoadSettingsCommand { get; }
@@ -71,6 +77,8 @@ public partial class SettingsViewModel : ObservableObject
         Sgst = settings.SGST;
         CurrentBillNumber = settings.CurrentBillNumber;
         DefaultInterestRate = settings.DefaultInterestRate;
+        ShopLogoPath = settings.ShopLogoPath ?? string.Empty;
+        ShopStampPath = settings.ShopStampPath ?? string.Empty;
         StatusMessage = "Settings loaded.";
     }
 
@@ -106,7 +114,9 @@ public partial class SettingsViewModel : ObservableObject
                 CGST = Cgst,
                 SGST = Sgst,
                 CurrentBillNumber = CurrentBillNumber,
-                DefaultInterestRate = DefaultInterestRate
+                DefaultInterestRate = DefaultInterestRate,
+                ShopLogoPath = string.IsNullOrWhiteSpace(ShopLogoPath) ? null : ShopLogoPath.Trim(),
+                ShopStampPath = string.IsNullOrWhiteSpace(ShopStampPath) ? null : ShopStampPath.Trim()
             };
 
             await _settingService.SaveSettingsAsync(settings);

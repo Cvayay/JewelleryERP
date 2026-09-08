@@ -50,6 +50,8 @@ public class SettingService
             currentSettings.SGST = settings.SGST;
             currentSettings.CurrentBillNumber = settings.CurrentBillNumber;
             currentSettings.DefaultInterestRate = settings.DefaultInterestRate;
+            currentSettings.ShopLogoPath = settings.ShopLogoPath;
+            currentSettings.ShopStampPath = settings.ShopStampPath;
 
             foreach (var extraSettings in allSettings.Skip(1))
             {

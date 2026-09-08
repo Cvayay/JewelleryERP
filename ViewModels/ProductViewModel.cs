@@ -65,8 +65,8 @@ public partial class ProductViewModel : ObservableObject
 
         ProductName = value.Name;
         Category = value.Category ?? string.Empty;
-        Price = value.Price;
-        StockQuantity = value.StockQuantity;
+        Price = value.SellingPrice;
+        StockQuantity = value.Quantity;
         StatusMessage = $"Editing product #{value.Id}.";
     }
 
@@ -109,8 +109,8 @@ public partial class ProductViewModel : ObservableObject
                 Id = SelectedProduct?.Id ?? 0,
                 Name = ProductName,
                 Category = Category,
-                Price = Price,
-                StockQuantity = StockQuantity
+                SellingPrice = Price,
+                Quantity = StockQuantity
             };
 
             await _productService.SaveProductAsync(product);

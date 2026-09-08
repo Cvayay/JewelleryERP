@@ -52,14 +52,14 @@ public class InvoiceService
                 throw new InvalidOperationException("Quantity must be greater than zero.");
             }
 
-            if (product.StockQuantity < item.Quantity)
+            if (product.Quantity < item.Quantity)
             {
                 throw new InvalidOperationException($"Not enough stock for {product.Name}.");
             }
 
-            item.UnitPrice = product.Price;
+            item.UnitPrice = product.SellingPrice;
             item.LineTotal = item.Quantity * item.UnitPrice;
-            product.StockQuantity -= item.Quantity;
+            product.Quantity -= item.Quantity;
         }
 
         invoice.TotalAmount = invoice.Items.Sum(item => item.LineTotal);
@@ -149,7 +149,7 @@ public class InvoiceService
 
             if (product is not null)
             {
-                product.StockQuantity += item.Quantity;
+                product.Quantity += item.Quantity;
             }
         }
 

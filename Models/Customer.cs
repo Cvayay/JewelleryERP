@@ -14,4 +14,6 @@ public class Customer
     public string? Address { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string? GSTIN { get; set; }
 }

@@ -55,6 +55,8 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="16" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="16" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="0"
@@ -106,6 +108,59 @@
 
                 <GroupBox Grid.Row="0"
                           Grid.Column="2"
+                          Header="Bill Branding"
+                          Foreground="{StaticResource TextPrimaryBrush}"
+                          BorderBrush="{StaticResource BorderBrushLight}"
+                          Padding="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Shop Logo Path"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBox Grid.Column="1"
+                                 Margin="8,0,0,0"
+                                 Text="{Binding ShopLogoPath, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="True"
+                                 Foreground="{StaticResource TextSecondaryBrush}" />
+
+                        <TextBlock Grid.Row="2"
+                                   Text="(e.g., logo.png)"
+                                   FontSize="10"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+
+                        <TextBlock Grid.Row="4"
+                                   Text="Shop Stamp Path"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBox Grid.Row="4"
+                                 Grid.Column="1"
+                                 Margin="8,0,0,0"
+                                 Text="{Binding ShopStampPath, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="True"
+                                 Foreground="{StaticResource TextSecondaryBrush}" />
+
+                        <TextBlock Grid.Row="6"
+                                   Text="(e.g., stamp.png)"
+                                   FontSize="10"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Grid.Row="2"
+                          Grid.Column="0"
                           Header="Metal Rates"
                           Foreground="{StaticResource TextPrimaryBrush}"
                           BorderBrush="{StaticResource BorderBrushLight}"
@@ -138,13 +193,17 @@
                 </GroupBox>
 
                 <GroupBox Grid.Row="2"
-                          Grid.Column="0"
-                          Header="Tax Settings"
+                          Grid.Column="2"
+                          Header="Tax &amp; Billing"
                           Foreground="{StaticResource TextPrimaryBrush}"
                           BorderBrush="{StaticResource BorderBrushLight}"
                           Padding="12">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="12" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="12" />
                             <RowDefinition Height="Auto" />
@@ -167,37 +226,20 @@
                         <TextBox Grid.Row="2"
                                  Grid.Column="1"
                                  Text="{Binding Sgst, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" />
-                    </Grid>
-                </GroupBox>
 
-                <GroupBox Grid.Row="2"
-                          Grid.Column="2"
-                          Header="Billing and Loan"
-                          Foreground="{StaticResource TextPrimaryBrush}"
-                          BorderBrush="{StaticResource BorderBrushLight}"
-                          Padding="12">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="12" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Current Bill Number"
+                        <TextBlock Grid.Row="4"
+                                   Text="Current Bill Number"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
-                        <TextBox Grid.Column="1"
+                        <TextBox Grid.Row="4"
+                                 Grid.Column="1"
                                  Text="{Binding CurrentBillNumber, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Grid.Row="2"
+                        <TextBlock Grid.Row="6"
                                    Text="Default Interest Rate"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
-                        <TextBox Grid.Row="2"
+                        <TextBox Grid.Row="6"
                                  Grid.Column="1"
                                  Text="{Binding DefaultInterestRate, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" />
                     </Grid>
