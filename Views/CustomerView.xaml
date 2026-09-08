@@ -164,23 +164,4 @@
             </Grid>
         </Grid>
     </Grid>
-</UserControl>  
-<Window.Resources>
-
-    <DataTemplate DataType="{x:Type vm:CustomerViewModel}">
-        <views:CustomerView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:ProductViewModel}">
-        <views:ProductView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:InvoiceViewModel}">
-        <views:InvoiceView/>
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-        <views:DashboardView/>
-    </DataTemplate>
-
-</Window.Resources>
+</UserControl>

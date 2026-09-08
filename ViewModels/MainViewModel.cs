@@ -10,16 +10,19 @@ namespace JewelleryERP.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly CurrentUserSession _session;
-    // private readonly LoginView _loginView;
-    // private readonly DashboardView _dashboardView;
-    // private readonly CustomerView _customerView;
-    // private readonly ProductView _productView;
-    // private readonly InvoiceView _invoiceView;
+    private readonly LoginView _loginView;
+    private readonly DashboardView _dashboardView;
+    private readonly CustomerView _customerView;
+    private readonly ProductView _productView;
+    private readonly InvoiceView _invoiceView;
+    private readonly SettingsView _settingsView;
 
     private readonly LoginViewModel _loginViewModel;
+    private readonly DashboardViewModel _dashboardViewModel;
     private readonly CustomerViewModel _customerViewModel;
     private readonly ProductViewModel _productViewModel;
     private readonly InvoiceViewModel _invoiceViewModel;
+    private readonly SettingsViewModel _settingsViewModel;
 
     [ObservableProperty]
     private object? currentView;
@@ -40,6 +43,8 @@ public partial class MainViewModel : ObservableObject
 
     public IAsyncRelayCommand ShowInvoiceViewCommand { get; }
 
+    public IAsyncRelayCommand ShowSettingsViewCommand { get; }
+
     public IAsyncRelayCommand LogoutCommand { get; }
 
     public MainViewModel(
@@ -49,10 +54,13 @@ public partial class MainViewModel : ObservableObject
         CustomerView customerView,
         ProductView productView,
         InvoiceView invoiceView,
+        SettingsView settingsView,
         LoginViewModel loginViewModel,
+        DashboardViewModel dashboardViewModel,
         CustomerViewModel customerViewModel,
         ProductViewModel productViewModel,
-        InvoiceViewModel invoiceViewModel)
+        InvoiceViewModel invoiceViewModel,
+        SettingsViewModel settingsViewModel)
     {
         _session = session;
         _loginView = loginView;
@@ -60,16 +68,20 @@ public partial class MainViewModel : ObservableObject
         _customerView = customerView;
         _productView = productView;
         _invoiceView = invoiceView;
+        _settingsView = settingsView;
         _loginViewModel = loginViewModel;
+        _dashboardViewModel = dashboardViewModel;
         _customerViewModel = customerViewModel;
         _productViewModel = productViewModel;
         _invoiceViewModel = invoiceViewModel;
+        _settingsViewModel = settingsViewModel;
 
         _loginView.DataContext = _loginViewModel;
-        // _dashboardView.DataContext = this;
-        // _customerView.DataContext = _customerViewModel;
+        _dashboardView.DataContext = _dashboardViewModel;
+        _customerView.DataContext = _customerViewModel;
         _productView.DataContext = _productViewModel;
         _invoiceView.DataContext = _invoiceViewModel;
+        _settingsView.DataContext = _settingsViewModel;
 
         _session.PropertyChanged += Session_PropertyChanged;
 
@@ -77,9 +89,10 @@ public partial class MainViewModel : ObservableObject
         ShowCustomerViewCommand = new AsyncRelayCommand(ShowCustomerViewAsync);
         ShowProductViewCommand = new AsyncRelayCommand(ShowProductViewAsync);
         ShowInvoiceViewCommand = new AsyncRelayCommand(ShowInvoiceViewAsync);
+        ShowSettingsViewCommand = new AsyncRelayCommand(ShowSettingsViewAsync);
         LogoutCommand = new AsyncRelayCommand(LogoutAsync);
 
-        CurrentView = _customerViewModel;
+        CurrentView = _loginView;
     }
 
     private void Session_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -91,20 +104,27 @@ public partial class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(CurrentUserName));
             OnPropertyChanged(nameof(CurrentRole));
 
-            CurrentView = IsAuthenticated ? _dashboardView : _loginView;
+            if (IsAuthenticated)
+            {
+                _ = ShowDashboardViewAsync();
+            }
+            else
+            {
+                CurrentView = _loginView;
+            }
         }
     }
 
-    private Task ShowDashboardViewAsync()
+    private async Task ShowDashboardViewAsync()
     {
         if (!IsAuthenticated)
         {
             CurrentView = _loginView;
-            return Task.CompletedTask;
+            return;
         }
 
         CurrentView = _dashboardView;
-        return Task.CompletedTask;
+        await _dashboardViewModel.LoadDashboardCommand.ExecuteAsync(null);
     }
 
     private async Task ShowCustomerViewAsync()
@@ -139,6 +159,17 @@ public partial class MainViewModel : ObservableObject
 
         CurrentView = _invoiceView;
         await _invoiceViewModel.LoadInvoicesCommand.ExecuteAsync(null);
+    }
+
+    private async Task ShowSettingsViewAsync()
+    {
+        if (!IsAdmin)
+        {
+            return;
+        }
+
+        CurrentView = _settingsView;
+        await _settingsViewModel.LoadSettingsCommand.ExecuteAsync(null);
     }
 
     private Task LogoutAsync()

@@ -34,12 +34,23 @@ public partial class DashboardViewModel : ObservableObject
 
     private async Task LoadDashboardAsync()
     {
-        DashboardSummary summary = await _dashboardService.GetSummaryAsync();
+        try
+        {
+            DashboardSummary summary = await _dashboardService.GetSummaryAsync();
 
-        TotalCustomers = summary.TotalCustomers;
-        TotalProducts = summary.TotalProducts;
-        TotalInvoices = summary.TotalInvoices;
-        TodaysSalesAmount = summary.TodaysSalesAmount;
-        StatusMessage = "Dashboard data loaded.";
+            TotalCustomers = summary.TotalCustomers;
+            TotalProducts = summary.TotalProducts;
+            TotalInvoices = summary.TotalInvoices;
+            TodaysSalesAmount = summary.TodaysSalesAmount;
+            StatusMessage = "Dashboard data loaded.";
+        }
+        catch (Exception ex)
+        {
+            TotalCustomers = 0;
+            TotalProducts = 0;
+            TotalInvoices = 0;
+            TodaysSalesAmount = 0;
+            StatusMessage = $"Dashboard could not load: {ex.Message}";
+        }
     }
 }

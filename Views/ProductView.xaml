@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -46,6 +47,50 @@
         <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,16">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Product Name" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBox Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                    <TextBlock Text="Category" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBox Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                    <TextBlock Text="Price" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Margin="0,0,12,0">
+                    <TextBlock Text="Stock" Margin="0,0,0,6" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBox Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <Button Content="Save"
+                            Command="{Binding SaveProductCommand}"
+                            Margin="0,0,8,0"
+                            Style="{StaticResource PrimaryButtonStyle}" />
+                    <Button Content="Clear"
+                            Command="{Binding ClearProductCommand}"
+                            Margin="0,0,8,0" />
+                    <Button Content="Delete"
+                            Command="{Binding DeleteProductCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
@@ -60,18 +105,34 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" Style="{StaticResource SectionBorderStyle}">
-            <DataGrid ItemsSource="{Binding Products}"
-                      SelectedItem="{Binding SelectedProduct, Mode=TwoWay}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
-                    <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:N2}}" Width="*" />
-                    <DataGridTextColumn Header="Stock" Binding="{Binding StockQuantity}" Width="90" />
-                    <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat={}{0:dd-MMM-yyyy}}" Width="140" />
-                </DataGrid.Columns>
-            </DataGrid>
+        <Border Grid.Row="3" Style="{StaticResource SectionBorderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <DataGrid ItemsSource="{Binding Products}"
+                          SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="70" />
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
+                        <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:N2}}" Width="*" />
+                        <DataGridTextColumn Header="Stock" Binding="{Binding StockQuantity}" Width="90" />
+                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat={}{0:dd-MMM-yyyy}}" Width="140" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Grid.Row="1"
+                           Text="{Binding StatusMessage}"
+                           Margin="0,12,0,0"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

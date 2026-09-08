@@ -40,6 +40,9 @@ public partial class InvoiceViewModel : ObservableObject
     [ObservableProperty]
     private string searchText = string.Empty;
 
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
+
     public ObservableCollection<InvoiceItem> InvoiceItems
     {
         get => invoiceItems;
@@ -106,23 +109,33 @@ public partial class InvoiceViewModel : ObservableObject
         }
 
         Invoices = new ObservableCollection<Invoice>(await _invoiceService.GetAllInvoicesAsync());
+        StatusMessage = $"Loaded {Invoices.Count} invoices.";
     }
 
     private async Task SearchInvoiceAsync()
     {
         Invoices = new ObservableCollection<Invoice>(
             await _invoiceService.SearchInvoicesAsync(SearchText));
+        StatusMessage = $"Found {Invoices.Count} invoices.";
     }
 
     private async Task AddItemAsync()
     {
-        if (SelectedProduct is null || Quantity <= 0)
+        if (SelectedProduct is null)
         {
+            StatusMessage = "Select a product before adding an item.";
+            return;
+        }
+
+        if (Quantity <= 0)
+        {
+            StatusMessage = "Quantity must be greater than zero.";
             return;
         }
 
         if (SelectedProduct.StockQuantity < Quantity)
         {
+            StatusMessage = $"Not enough stock for {SelectedProduct.Name}. Available: {SelectedProduct.StockQuantity}.";
             return;
         }
 
@@ -137,6 +150,7 @@ public partial class InvoiceViewModel : ObservableObject
 
         Quantity = 1;
         SelectedProduct = null;
+        StatusMessage = "Item added.";
         OnPropertyChanged(nameof(TotalAmount));
         await Task.CompletedTask;
     }
@@ -145,56 +159,79 @@ public partial class InvoiceViewModel : ObservableObject
     {
         if (SelectedInvoiceItem is null)
         {
+            StatusMessage = "Select an item to remove.";
             return;
         }
 
         InvoiceItems.Remove(SelectedInvoiceItem);
         SelectedInvoiceItem = null;
+        StatusMessage = "Item removed.";
         OnPropertyChanged(nameof(TotalAmount));
         await Task.CompletedTask;
     }
 
     private async Task SaveInvoiceAsync()
     {
-        if (SelectedCustomer is null || InvoiceItems.Count == 0)
+        if (SelectedCustomer is null)
         {
+            StatusMessage = "Select a customer before saving the invoice.";
             return;
         }
 
-        var invoice = new Invoice
+        if (InvoiceItems.Count == 0)
         {
-            CustomerId = SelectedCustomer.Id,
-            InvoiceDate = DateTime.Now,
-            Items = InvoiceItems
-                .Select(item => new InvoiceItem
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity
-                })
-                .ToList()
-        };
+            StatusMessage = "Add at least one item before saving the invoice.";
+            return;
+        }
 
-        await _invoiceService.CreateInvoiceAsync(invoice);
+        try
+        {
+            var invoice = new Invoice
+            {
+                CustomerId = SelectedCustomer.Id,
+                InvoiceDate = DateTime.Now,
+                Items = InvoiceItems
+                    .Select(item => new InvoiceItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity
+                    })
+                    .ToList()
+            };
 
-        InvoiceItems.Clear();
-        SelectedCustomer = null;
-        SelectedProduct = null;
-        SelectedInvoiceItem = null;
-        SelectedInvoice = null;
-        Quantity = 1;
+            var savedInvoice = await _invoiceService.CreateInvoiceAsync(invoice);
 
-        Products = new ObservableCollection<Product>(await _invoiceService.GetProductsAsync());
-        await LoadInvoicesAsync();
-        OnPropertyChanged(nameof(TotalAmount));
+            InvoiceItems.Clear();
+            SelectedCustomer = null;
+            SelectedProduct = null;
+            SelectedInvoiceItem = null;
+            SelectedInvoice = savedInvoice;
+            Quantity = 1;
+
+            Customers = new ObservableCollection<Customer>(await _invoiceService.GetCustomersAsync());
+            Products = new ObservableCollection<Product>(await _invoiceService.GetProductsAsync());
+            Invoices = new ObservableCollection<Invoice>(await _invoiceService.GetAllInvoicesAsync());
+            SelectedInvoice = Invoices.FirstOrDefault(item => item.Id == savedInvoice.Id);
+            StatusMessage = $"Invoice #{savedInvoice.Id} saved.";
+            OnPropertyChanged(nameof(TotalAmount));
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
     }
 
     private async Task ExportInvoiceAsync()
     {
         if (SelectedInvoice is null)
         {
+            StatusMessage = "Select an invoice to export.";
             return;
         }
 
-        await _invoiceExportService.ExportInvoiceToXpsAsync(SelectedInvoice.Id);
+        var result = await _invoiceExportService.ExportInvoiceToXpsAsync(SelectedInvoice.Id);
+        StatusMessage = result.IsSuccess
+            ? $"Invoice exported: {result.Value}"
+            : result.Error;
     }
 }

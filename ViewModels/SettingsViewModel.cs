@@ -36,6 +36,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private decimal defaultInterestRate;
 
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
+
     public IAsyncRelayCommand LoadSettingsCommand { get; }
 
     public IAsyncRelayCommand SaveSettingsCommand { get; }
@@ -68,24 +71,51 @@ public partial class SettingsViewModel : ObservableObject
         Sgst = settings.SGST;
         CurrentBillNumber = settings.CurrentBillNumber;
         DefaultInterestRate = settings.DefaultInterestRate;
+        StatusMessage = "Settings loaded.";
     }
 
     private async Task SaveSettingsAsync()
     {
-        var settings = new Setting
+        if (string.IsNullOrWhiteSpace(ShopName))
         {
-            ShopName = ShopName.Trim(),
-            Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
-            GSTIN = string.IsNullOrWhiteSpace(Gstin) ? null : Gstin.Trim(),
-            CurrentGoldRate = CurrentGoldRate,
-            CurrentSilverRate = CurrentSilverRate,
-            CGST = Cgst,
-            SGST = Sgst,
-            CurrentBillNumber = CurrentBillNumber,
-            DefaultInterestRate = DefaultInterestRate
-        };
+            StatusMessage = "Shop name is required.";
+            return;
+        }
 
-        await _settingService.SaveSettingsAsync(settings);
-        await LoadSettingsAsync();
+        if (CurrentBillNumber <= 0)
+        {
+            StatusMessage = "Current bill number must be greater than zero.";
+            return;
+        }
+
+        if (Cgst < 0 || Sgst < 0 || DefaultInterestRate < 0 || CurrentGoldRate < 0 || CurrentSilverRate < 0)
+        {
+            StatusMessage = "Rates and percentages cannot be negative.";
+            return;
+        }
+
+        try
+        {
+            var settings = new Setting
+            {
+                ShopName = ShopName.Trim(),
+                Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
+                GSTIN = string.IsNullOrWhiteSpace(Gstin) ? null : Gstin.Trim(),
+                CurrentGoldRate = CurrentGoldRate,
+                CurrentSilverRate = CurrentSilverRate,
+                CGST = Cgst,
+                SGST = Sgst,
+                CurrentBillNumber = CurrentBillNumber,
+                DefaultInterestRate = DefaultInterestRate
+            };
+
+            await _settingService.SaveSettingsAsync(settings);
+            await LoadSettingsAsync();
+            StatusMessage = "Settings saved.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
     }
 }

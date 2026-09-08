@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="16" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
@@ -125,5 +126,11 @@
                 </Grid>
             </Border>
         </Grid>
+
+        <TextBlock Grid.Row="3"
+                   Text="{Binding StatusMessage}"
+                   Margin="0,16,0,0"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   TextWrapping="Wrap" />
     </Grid>
 </UserControl>
