@@ -1,13 +1,13 @@
 # JewelleryERP
 
-JewelleryERP is a Windows desktop ERP application for jewellery retailers. It combines customer records, jewellery inventory, point-of-sale invoicing, customer ledgers, pledge/loan tracking, and shop billing settings in a single WPF application.
+JewelleryERP is a Windows desktop ERP application for Om Prakash Jewellers. It focuses on the store's core offline workflows: customer records, jewellery inventory, cash-bill invoicing, Form-E pledge/loan tracking, shop settings, and local SQLite persistence.
 
 The application is designed for local, single-store use. It uses SQLite for persistence and creates its working folders automatically under the current Windows user's Local Application Data directory.
 
 ## Highlights
 
 - Dashboard with sales, inventory, customer, invoice, and loan summaries.
-- Customer management with search and customer ledger access.
+- Customer management with search and customer history access.
 - Jewellery product catalog with barcode, metal, purity, weight, pricing, and quantity fields.
 - Invoice creation using customer and product records.
 - Automatic invoice totals for making charges, CGST, SGST, and the final amount.
@@ -17,6 +17,7 @@ The application is designed for local, single-store use. It uses SQLite for pers
 - Loan search, pending and overdue views, redemption, and auction lifecycle actions.
 - Shop settings for tax rates, bill numbering, loan interest defaults, logo, and stamp images.
 - Admin and Staff roles with restricted navigation for administrative modules.
+- Persisted Light/Dark theme switching with a collapsible navigation rail.
 - Automatic creation and compatibility repair of the local SQLite schema on startup.
 
 ## Application Modules
@@ -48,10 +49,6 @@ Authenticated users can create and review invoices. An invoice contains a custom
 
 Invoices can be exported as XPS files or sent to a selected Windows printer. The printed document can include the shop name, address, GSTIN, logo, stamp, customer details, bill metadata, items, and totals.
 
-### Customer Ledger
-
-Administrators can open customer-specific invoice history and ledger information from the customer ledger module.
-
 ### Pledge / Loan Management
 
 Authenticated users can register and manage pledge loans. A loan can include:
@@ -82,7 +79,6 @@ Admin-only modules:
 
 - Customers
 - Products
-- Customer Ledger
 - Settings
 
 Both Admin and Staff users can access the dashboard, invoices, and pledge/loan management after signing in.
@@ -185,14 +181,18 @@ JewelleryERP/
 |-- Services/      Business logic and persistence operations
 |-- ViewModels/    MVVM state, commands, and view orchestration
 |-- Views/         WPF screens and code-behind files
-|-- Resources/     Shared WPF theme resources
+|-- Resources/     Shared WPF styles and resource aliases
+|-- Themes/        Light and dark semantic theme dictionaries
 |-- Migrations/    EF Core migration artifacts
 |-- docs/          Planning, delivery, and test documentation
 |-- App.xaml       WPF application resources and startup entry point
-|-- MainWindow.xaml  Main application shell
+|-- Shell.xaml     Active WPF application shell and navigation rail
+|-- MainWindow.xaml.cs  Shell code-behind for presentation-only animation
 ```
 
-At startup, `App.xaml.cs` configures dependency injection, initializes the database, repairs compatible legacy SQLite schemas, initializes default settings, and opens the main window. `MainViewModel` coordinates authenticated navigation while individual services own module-specific database and business operations.
+At startup, `App.xaml.cs` configures dependency injection, applies the saved theme, initializes the database, repairs compatible legacy SQLite schemas, initializes default settings, and opens the shell. `MainViewModel` coordinates authenticated navigation, the collapsible rail, and the command palette while individual services own module-specific database and business operations.
+
+The compiled shell is `Shell.xaml`. `MainWindow.xaml` is retained only as a legacy duplicate and is excluded from WPF compilation by the project file.
 
 ## Database Notes
 
@@ -251,7 +251,9 @@ When changing models or database mappings, verify both a new database and an exi
 
 ## Project Status
 
-Implemented modules include dashboard, authentication, customers, products, invoices, invoice export/printing, customer ledger, pledge/loan management, and settings. The `docs/` directory contains additional planning, delivery, test, and demonstration material.
+The production scope is intentionally limited to dashboard, authentication, customers, products, cash-bill invoicing, invoice export/printing, pledge/loan management, settings, offline SQLite persistence, and theme-aware desktop navigation.
+
+The repository also contains legacy planning documents, reference images, and experimental model mappings. Before a production release, review unused infrastructure such as the currently unmapped `User` and `AuditLog` entities, the unused `PasswordHasher`, and the duplicate `MainWindow.xaml`. Do not remove database mappings without a migration and a backup strategy.
 
 ## License
 
