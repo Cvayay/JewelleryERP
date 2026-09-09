@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JewelleryERP.Helpers;
@@ -30,15 +29,13 @@ public partial class MainViewModel : ObservableObject
     private readonly LoanViewModel _loanViewModel;
     private readonly CustomerLedgerViewModel _customerLedgerViewModel;
     private readonly SettingsViewModel _settingsViewModel;
+    private readonly ThemeService _themeService;
 
     [ObservableProperty]
     private object? currentView;
 
     [ObservableProperty]
     private bool isNavigationCollapsed;
-
-    [ObservableProperty]
-    private GridLength navigationWidth = new(260);
 
     [ObservableProperty]
     private bool isCommandPaletteOpen;
@@ -81,6 +78,10 @@ public partial class MainViewModel : ObservableObject
 
     public IRelayCommand<PaletteItem> ExecutePaletteItemCommand { get; }
 
+    public IRelayCommand ToggleThemeCommand { get; }
+
+    public string ThemeToggleLabel => _themeService.ToggleLabel;
+
     public string DatabaseHealth => "Offline SQLite | Ready";
 
     public MainViewModel(
@@ -100,7 +101,8 @@ public partial class MainViewModel : ObservableObject
         InvoiceViewModel invoiceViewModel,
         LoanViewModel loanViewModel,
         CustomerLedgerViewModel customerLedgerViewModel,
-        SettingsViewModel settingsViewModel)
+        SettingsViewModel settingsViewModel,
+        ThemeService themeService)
     {
         _session = session;
         _loginView = loginView;
@@ -119,6 +121,7 @@ public partial class MainViewModel : ObservableObject
         _loanViewModel = loanViewModel;
         _customerLedgerViewModel = customerLedgerViewModel;
         _settingsViewModel = settingsViewModel;
+        _themeService = themeService;
 
         _loginView.DataContext = _loginViewModel;
         _dashboardView.DataContext = _dashboardViewModel;
@@ -143,6 +146,7 @@ public partial class MainViewModel : ObservableObject
         OpenCommandPaletteCommand = new RelayCommand(OpenCommandPalette);
         CloseCommandPaletteCommand = new RelayCommand(CloseCommandPalette);
         ExecutePaletteItemCommand = new RelayCommand<PaletteItem>(ExecutePaletteItem);
+        ToggleThemeCommand = new RelayCommand(ToggleTheme);
 
         CurrentView = _loginView;
         RefreshCommandPaletteResults();
@@ -154,7 +158,12 @@ public partial class MainViewModel : ObservableObject
     private void ToggleNavigation()
     {
         IsNavigationCollapsed = !IsNavigationCollapsed;
-        NavigationWidth = new GridLength(IsNavigationCollapsed ? 76 : 260);
+    }
+
+    private void ToggleTheme()
+    {
+        _themeService.ToggleTheme();
+        OnPropertyChanged(nameof(ThemeToggleLabel));
     }
 
     private void OpenCommandPalette()

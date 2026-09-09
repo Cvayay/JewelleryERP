@@ -98,7 +98,7 @@
                         <TextBlock Text="Recent Invoices" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
                         <DataGrid Grid.Row="1" ItemsSource="{Binding RecentInvoices}" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Bill" Binding="{Binding BillNumber}" Width="*" />
+                                <DataGridTextColumn Header="Bill" Binding="{Binding DisplayBillNumber}" Width="*" />
                                 <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="2*" />
                                 <DataGridTextColumn Header="Date" Binding="{Binding InvoiceDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="120" />
                                 <DataGridTextColumn Header="Total (₹)" Binding="{Binding TotalAmount, StringFormat=₹ {0:N2}}" Width="130" />

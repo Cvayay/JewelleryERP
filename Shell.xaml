@@ -11,64 +11,70 @@
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="{Binding NavigationWidth}" />
+            <ColumnDefinition x:Name="SidebarColumn" Width="232" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="18">
-            <DockPanel LastChildFill="True">
-                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,18">
-                    <Grid>
-                        <TextBlock Text="JewelleryERP" Foreground="White" FontSize="22" FontWeight="SemiBold"
-                                   Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
-                        <Button Content="+" Command="{Binding ToggleNavigationCommand}" HorizontalAlignment="Right"
-                                Width="38" Height="38" Padding="0" ToolTip="Collapse navigation" />
-                    </Grid>
-                    <TextBlock Text="{Binding CurrentUserName}" Foreground="#D1D5DB" FontSize="12" Margin="0,10,0,0"
+        <Border Grid.Column="0" Background="{DynamicResource SidebarBgBrush}" Padding="14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="JewelleryERP" Foreground="{DynamicResource SidebarTextBrush}" FontSize="22" FontWeight="SemiBold"
                                Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
-                    <TextBlock Text="{Binding CurrentRole}" Foreground="#9CA3AF" FontSize="11"
-                               Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
-                </StackPanel>
-                <StackPanel>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardViewCommand}" ToolTip="Dashboard"><TextBlock Text="Dashboard" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowCustomerViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Customers"><TextBlock Text="Customers" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowProductViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Products"><TextBlock Text="Products" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowInvoiceViewCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Invoices"><TextBlock Text="Invoices" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowLoanViewCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Pledge and Loan"><TextBlock Text="Pledge Loan" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowCustomerLedgerViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Customer ledger"><TextBlock Text="Ledger" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowSettingsViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Settings"><TextBlock Text="Settings" /></Button>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding LogoutCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Logout"><TextBlock Text="Logout" /></Button>
-                </StackPanel>
-                <Border DockPanel.Dock="Bottom" Padding="10" Background="#1F2937" BorderBrush="#374151" BorderThickness="1"
-                        Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}">
+                    <Button Command="{Binding ToggleNavigationCommand}" HorizontalAlignment="Right"
+                            Style="{StaticResource SidebarToggleButtonStyle}" ToolTip="Toggle navigation">
+                        <Path Data="M4,5 L20,5 M4,12 L20,12 M4,19 L20,19" Style="{StaticResource SidebarIconStyle}" />
+                    </Button>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <TextBlock Text="PROFILE" FontSize="10" Foreground="#9CA3AF" />
-                        <TextBlock Text="{Binding CurrentUserName}" Foreground="White" FontWeight="SemiBold" Margin="0,4,0,0" />
-                        <TextBlock Text="{Binding DatabaseHealth}" Foreground="#D6B15C" FontSize="11" Margin="0,4,0,0" />
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardViewCommand}" ToolTip="Dashboard"><StackPanel Orientation="Horizontal"><Path Data="M4,4 H10 V10 H4 Z M14,4 H20 V10 H14 Z M4,14 H10 V20 H4 Z M14,14 H20 V20 H14 Z" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Dashboard" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowCustomerViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Customers"><StackPanel Orientation="Horizontal"><Path Data="M9,11 A3,3 0 1 0 9,5 A3,3 0 0 0 9,11 M3,20 C3,16 5.5,14 9,14 C12.5,14 15,16 15,20 M16,7 A2.5,2.5 0 1 0 16,12 M16,14 C19,14.5 21,16.5 21,20" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Customers" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowProductViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Products"><StackPanel Orientation="Horizontal"><Path Data="M4,5 L12,3 L20,5 L12,7 Z M4,5 V18 L12,21 L20,18 V5 M12,7 V21" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Products" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowInvoiceViewCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Invoices"><StackPanel Orientation="Horizontal"><Path Data="M6,3 H16 L20,7 V21 H6 Z M16,3 V7 H20 M9,12 H17 M9,16 H17" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Invoices" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowLoanViewCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Pledge and Loan"><StackPanel Orientation="Horizontal"><Path Data="M3,12 H21 M6,8 H18 M6,16 H18 M9,4 H15 M9,20 H15" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Pledge Loan" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowCustomerLedgerViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Customer ledger"><StackPanel Orientation="Horizontal"><Path Data="M5,4 H19 V20 H5 Z M8,8 H16 M8,12 H16 M8,16 H13" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Ledger" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowSettingsViewCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" ToolTip="Settings"><StackPanel Orientation="Horizontal"><Path Data="M12,4 A8,8 0 1 0 12,20 A8,8 0 1 0 12,4 M12,9 A3,3 0 1 0 12,15 A3,3 0 1 0 12,9" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Settings" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                        <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding LogoutCommand}" Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}" ToolTip="Logout"><StackPanel Orientation="Horizontal"><Path Data="M10,5 H5 V19 H10 M14,8 L20,12 L14,16 M20,12 H8" Style="{StaticResource SidebarIconStyle}" /><TextBlock Text="Logout" Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" /></StackPanel></Button>
+                    </StackPanel>
+                </ScrollViewer>
+                <Border Grid.Row="2" Padding="10" Background="{DynamicResource NavButtonBgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <Button Command="{Binding ToggleThemeCommand}"
+                                ToolTip="{Binding ThemeToggleLabel}"
+                                ToolTipService.IsEnabled="True"
+                                Style="{StaticResource SidebarToggleButtonStyle}"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8">
+                            <Path Data="M12,3 A9,9 0 1 0 21,12 A7,7 0 0 1 12,3 Z"
+                                  Style="{StaticResource SidebarIconStyle}" />
+                        </Button>
+                        <TextBlock Text="PROFILE" FontSize="10" Foreground="{DynamicResource SidebarMutedTextBrush}"
+                                   Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <TextBlock Text="{Binding CurrentUserName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="SemiBold" Margin="0,4,0,0"
+                                   Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <TextBlock Text="{Binding DatabaseHealth}" Foreground="{DynamicResource AccentGoldBrush}" FontSize="11" Margin="0,4,0,0"
+                                   Visibility="{Binding IsNavigationCollapsed, Converter={StaticResource InverseBoolToVisibility}}" />
                     </StackPanel>
                 </Border>
-            </DockPanel>
+            </Grid>
         </Border>
-        <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}">
+        <Grid Grid.Column="1" Background="{DynamicResource ShellBgBrush}">
             <ContentControl Content="{Binding CurrentView}" />
             <Border Background="#66000000" Visibility="{Binding IsCommandPaletteOpen, Converter={StaticResource BoolToVisibility}}">
-                <Border Width="620" MaxHeight="520" VerticalAlignment="Top" Margin="0,80,0,0" Padding="18"
-                        Background="White" BorderBrush="#D6B15C" BorderThickness="2">
+                <Border Width="620" MaxHeight="520" VerticalAlignment="Top" Margin="0,80,0,0" Padding="18" Background="{DynamicResource CardBgBrush}" BorderBrush="{DynamicResource AccentGoldBrush}" BorderThickness="2">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                        <TextBox Text="{Binding CommandPaletteQuery, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Padding="12"
-                                 ToolTip="Search modules, bills, pledges, customers, and stock" />
+                        <TextBox Text="{Binding CommandPaletteQuery, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Padding="12" ToolTip="Search modules, bills, pledges, customers, and stock" />
                         <ListBox Grid.Row="1" ItemsSource="{Binding CommandPaletteResults}" BorderThickness="0" Margin="0,12,0,0">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Command="{Binding DataContext.ExecutePaletteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                            CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" Padding="12" Margin="0,0,0,6">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
+                            <ListBox.ItemTemplate><DataTemplate>
+                                <Button Command="{Binding DataContext.ExecutePaletteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" Padding="12" Margin="0,0,0,6">
+                                    <StackPanel><TextBlock Text="{Binding Title}" FontWeight="SemiBold" /><TextBlock Text="{Binding Description}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" /></StackPanel>
+                                </Button>
+                            </DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
                 </Border>

@@ -37,6 +37,8 @@ public sealed class DashboardInvoiceRow
 {
     public string BillNumber { get; init; } = string.Empty;
 
+    public string DisplayBillNumber => string.IsNullOrWhiteSpace(BillNumber) ? "INV-" : BillNumber;
+
     public string CustomerName { get; init; } = string.Empty;
 
     public DateTime InvoiceDate { get; init; }

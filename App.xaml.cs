@@ -30,6 +30,7 @@ public partial class App : Application
         services.AddSingleton<DashboardService>();
         services.AddSingleton<SettingService>();
         services.AddSingleton<LoanService>();
+        services.AddSingleton<ThemeService>();
 
         services.AddSingleton<LoginView>();
         services.AddSingleton<DashboardView>();
@@ -52,6 +53,8 @@ public partial class App : Application
         services.AddSingleton<MainWindow>();
 
         ServiceProvider = services.BuildServiceProvider();
+
+        ServiceProvider.GetRequiredService<ThemeService>().ApplySavedTheme();
 
         await InitializeDatabaseAsync();
 

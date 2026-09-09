@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="SidebarBgColor">#111827</Color>
+    <Color x:Key="ShellBgColor">#F3F4F6</Color>
+    <Color x:Key="CardBgColor">#FFFFFF</Color>
+    <Color x:Key="NavButtonBgColor">#1F2937</Color>
+    <Color x:Key="NavButtonHoverColor">#374151</Color>
+    <Color x:Key="NavButtonActiveColor">#4B3A18</Color>
+    <Color x:Key="TextPrimaryColor">#111827</Color>
+    <Color x:Key="TextSecondaryColor">#6B7280</Color>
+    <Color x:Key="BorderColor">#D6D9E0</Color>
+    <Color x:Key="AccentGoldColor">#D6B15C</Color>
+    <Color x:Key="AccentColor">#B8860B</Color>
+    <Color x:Key="SidebarTextColor">#FFFFFF</Color>
+    <Color x:Key="SidebarMutedTextColor">#D1D5DB</Color>
+    <SolidColorBrush x:Key="SidebarBgBrush" Color="#111827" />
+    <SolidColorBrush x:Key="ShellBgBrush" Color="#F3F4F6" />
+    <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="NavButtonBgBrush" Color="#1F2937" />
+    <SolidColorBrush x:Key="NavButtonHoverBrush" Color="#374151" />
+    <SolidColorBrush x:Key="NavButtonActiveBrush" Color="#4B3A18" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#D6D9E0" />
+    <SolidColorBrush x:Key="AccentGoldBrush" Color="#D6B15C" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#B8860B" />
+    <SolidColorBrush x:Key="SidebarTextBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SidebarMutedTextBrush" Color="#D1D5DB" />
+</ResourceDictionary>
